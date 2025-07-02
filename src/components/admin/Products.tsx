@@ -247,7 +247,7 @@ const ProductManager: React.FC = () => {
                   onClick={resetForm}
                   className="p-1.5 sm:p-2 bg-white bg-opacity-20 rounded-lg sm:rounded-xl hover:bg-opacity-30 transition-all duration-200"
                 >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
                 </button>
               </div>
             </div>
