@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { supabase } from "../../lib/supabase";
 import {
   Edit3,
@@ -23,6 +23,57 @@ type User = {
   alamat?: string;
   role: "admin" | "user";
 };
+
+// Pindahkan InputField keluar dari komponen utama
+const InputField = ({
+  icon: Icon,
+  label,
+  type = "text",
+  value,
+  onChange,
+  required = false,
+  options,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  type?: string;
+  value?: string;
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
+  required?: boolean;
+  options?: { value: string; label: string }[];
+}) => (
+  <div className="space-y-2">
+    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <Icon className="w-4 h-4 text-gray-500" />
+      {label}
+    </label>
+    {type === "select" ? (
+      <select
+        value={value}
+        onChange={onChange}
+        required={required}
+        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+      >
+        {options?.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        required={required}
+        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+        placeholder={`Masukkan ${label.toLowerCase()}`}
+      />
+    )}
+  </div>
+);
 
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -102,55 +153,26 @@ const UsersPage: React.FC = () => {
     setShowForm(false);
   };
 
-  const InputField = ({
-    icon: Icon,
-    label,
-    type = "text",
-    value,
-    onChange,
-    required = false,
-    options,
-  }: {
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    type?: string;
-    value?: string;
-    onChange?: (
-      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => void;
-    required?: boolean;
-    options?: { value: string; label: string }[];
-  }) => (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-        <Icon className="w-4 h-4 text-gray-500" />
-        {label}
-      </label>
-      {type === "select" ? (
-        <select
-          value={value}
-          onChange={onChange}
-          required={required}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-        >
-          {options?.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          required={required}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-          placeholder={`Masukkan ${label.toLowerCase()}`}
-        />
-      )}
-    </div>
-  );
+  // Gunakan useCallback untuk event handlers agar tidak re-create setiap render
+  const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm(prev => ({ ...prev, username: e.target.value }));
+  }, []);
+
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm(prev => ({ ...prev, email: e.target.value }));
+  }, []);
+
+  const handleTeleponChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm(prev => ({ ...prev, telepon: e.target.value }));
+  }, []);
+
+  const handleAlamatChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm(prev => ({ ...prev, alamat: e.target.value }));
+  }, []);
+
+  const handleRoleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm(prev => ({ ...prev, role: e.target.value as "admin" | "user" }));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -195,7 +217,7 @@ const UsersPage: React.FC = () => {
                   onClick={resetForm}
                   className="p-1.5 sm:p-2 bg-white bg-opacity-20 rounded-lg sm:rounded-xl hover:bg-opacity-30 transition-all duration-200"
                 >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
                 </button>
               </div>
             </div>
@@ -206,9 +228,7 @@ const UsersPage: React.FC = () => {
                   icon={User}
                   label="Username"
                   value={form.username}
-                  onChange={(e) =>
-                    setForm({ ...form, username: e.target.value })
-                  }
+                  onChange={handleUsernameChange}
                   required
                 />
 
@@ -217,16 +237,14 @@ const UsersPage: React.FC = () => {
                   label="Email"
                   type="email"
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  onChange={handleEmailChange}
                 />
 
                 <InputField
                   icon={Phone}
                   label="Telepon"
                   value={form.telepon}
-                  onChange={(e) =>
-                    setForm({ ...form, telepon: e.target.value })
-                  }
+                  onChange={handleTeleponChange}
                 />
 
                 <InputField
@@ -234,12 +252,7 @@ const UsersPage: React.FC = () => {
                   label="Role"
                   type="select"
                   value={form.role}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      role: e.target.value as "admin" | "user",
-                    })
-                  }
+                  onChange={handleRoleChange}
                   options={[
                     { value: "user", label: "User" },
                     { value: "admin", label: "Admin" },
@@ -251,9 +264,7 @@ const UsersPage: React.FC = () => {
                     icon={MapPin}
                     label="Alamat"
                     value={form.alamat}
-                    onChange={(e) =>
-                      setForm({ ...form, alamat: e.target.value })
-                    }
+                    onChange={handleAlamatChange}
                   />
                 </div>
               </div>

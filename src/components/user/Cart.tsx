@@ -313,7 +313,7 @@ const Cart: React.FC = () => {
                     />
                     {selectedItems.size === cartItems.length &&
                       cartItems.length > 0 && (
-                        <Check className="w-4 h-4 text-white absolute top-0.5 left-0.5 pointer-events-none" />
+                        <Check className="w-4 h-4 text-white opacity-0 absolute top-0.5 left-0.5 pointer-events-none" />
                       )}
                   </div>
                   <span className="font-bold text-gray-800 text-lg group-hover:text-indigo-600 transition-colors">
@@ -349,7 +349,7 @@ const Cart: React.FC = () => {
                         className="w-6 h-6 text-indigo-600 rounded-lg focus:ring-indigo-500 border-2 border-gray-300 mt-2"
                       />
                       {selectedItems.has(item.id_keranjang) && (
-                        <Check className="w-4 h-4 text-white absolute top-2.5 left-0.5 pointer-events-none" />
+                        <Check className="w-4 h-4 text-white opacity-0 absolute top-2.5 left-0.5 pointer-events-none" />
                       )}
                     </div>
 

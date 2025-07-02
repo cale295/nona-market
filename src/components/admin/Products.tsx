@@ -24,6 +24,78 @@ type Product = {
   gambar_produk: string;
 };
 
+// Pindahkan InputField ke luar komponen utama
+const InputField = ({
+  icon: Icon,
+  label,
+  type = "text",
+  value,
+  onChange,
+  required = false,
+  rows,
+  accept,
+  onFileChange,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  type?: string;
+  value?: string | number;
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  required?: boolean;
+  rows?: number;
+  accept?: string;
+  onFileChange?: (file: File | null) => void;
+}) => (
+  <div className="space-y-2">
+    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <Icon className="w-4 h-4 text-gray-500" />
+      {label}
+    </label>
+    {type === "textarea" ? (
+      <textarea
+        value={value as string}
+        onChange={onChange}
+        rows={rows || 3}
+        required={required}
+        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+        placeholder={`Masukkan ${label.toLowerCase()}`}
+      />
+    ) : type === "file" ? (
+      <div className="relative">
+        <input
+          type="file"
+          accept={accept}
+          onChange={(e) => onFileChange?.(e.target.files?.[0] || null)}
+          className="hidden"
+          id="file-upload"
+        />
+        <label
+          htmlFor="file-upload"
+          className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
+        >
+          <div className="text-center">
+            <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+            <span className="text-sm text-gray-600">
+              {value ? (value as string) : "Pilih gambar produk"}
+            </span>
+          </div>
+        </label>
+      </div>
+    ) : (
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        required={required}
+        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+        placeholder={`Masukkan ${label.toLowerCase()}`}
+      />
+    )}
+  </div>
+);
+
 const ProductManager: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState<Omit<Product, "id_produk">>({
@@ -131,75 +203,6 @@ const ProductManager: React.FC = () => {
     setEditingId(null);
     setShowForm(false);
   };
-
-  const InputField = ({
-    icon: Icon,
-    label,
-    type = "text",
-    value,
-    onChange,
-    required = false,
-    rows,
-    accept,
-  }: {
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    type?: string;
-    value?: string | number;
-    onChange?: (
-      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => void;
-    required?: boolean;
-    rows?: number;
-    accept?: string;
-  }) => (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-        <Icon className="w-4 h-4 text-gray-500" />
-        {label}
-      </label>
-      {type === "textarea" ? (
-        <textarea
-          value={value as string}
-          onChange={onChange}
-          rows={rows || 3}
-          required={required}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
-          placeholder={`Masukkan ${label.toLowerCase()}`}
-        />
-      ) : type === "file" ? (
-        <div className="relative">
-          <input
-            type="file"
-            accept={accept}
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="hidden"
-            id="file-upload"
-          />
-          <label
-            htmlFor="file-upload"
-            className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
-          >
-            <div className="text-center">
-              <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
-              <span className="text-sm text-gray-600">
-                {file ? file.name : "Pilih gambar produk"}
-              </span>
-            </div>
-          </label>
-        </div>
-      ) : (
-        <input
-          type={type}
-          value={value}
-          onChange={onChange}
-          required={required}
-          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-          placeholder={`Masukkan ${label.toLowerCase()}`}
-        />
-      )}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -311,6 +314,8 @@ const ProductManager: React.FC = () => {
                     label="Gambar Produk"
                     type="file"
                     accept="image/*"
+                    value={file?.name}
+                    onFileChange={setFile}
                   />
                 </div>
               </div>
