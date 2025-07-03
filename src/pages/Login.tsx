@@ -77,7 +77,15 @@ const Login: React.FC = () => {
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-400 outline-none"
             />
           </div>
-          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+          {error && 
+          <p className="mt-4 text-center text-sm text-gray-600">
+            <Link
+              to="/forgot-password"
+              className="text-pink-600 font-semibold hover:underline"
+            >
+              Lupa Password?
+            </Link>
+          </p>}
           <button
             type="submit"
             disabled={loading}
