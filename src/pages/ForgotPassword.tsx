@@ -12,7 +12,7 @@ const ForgotPassword: React.FC = () => {
     setMessage(null);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/update-password`,
+      redirectTo: 'https://nonamarkets.netlify.app/update-password',
     });
 
     if (error) {
