@@ -14,6 +14,8 @@ import Dashboard from "../pages/Dashboard";
 import ProductManager from "../components/admin/Products";
 import UsersPage from "../components/admin/Users";
 import OrderManager from "../components/admin/Orders";
+import ForgotPassword from "../pages/ForgotPassword";
+import UpdatePassword from "../pages/UpdatePassword";
 
 const AppRouter: React.FC = () => {
   return (
@@ -37,6 +39,8 @@ const AppRouter: React.FC = () => {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

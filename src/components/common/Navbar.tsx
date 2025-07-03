@@ -148,7 +148,6 @@ const Navbar: React.FC = () => {
                 alt="Nona Market"
                 className="w-10 h-10 md:w-12 md:h-12 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300"
               />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full animate-pulse"></div>
             </div>
             <div className="hidden md:block">
               <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">

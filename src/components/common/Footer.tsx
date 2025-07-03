@@ -112,7 +112,6 @@ const ModernFooter = () => {
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
                     <span className="text-white font-bold text-xl">N</span>
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 rounded-full animate-pulse"></div>
                 </div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                   Nona Market
@@ -191,8 +190,6 @@ const ModernFooter = () => {
                   { name: "Hijab Instant", badge: "New" },
                   { name: "Hijab Syari", badge: null },
                   { name: "Aksesoris Hijab", badge: "Sale" },
-                  { name: "Gamis", badge: null },
-                  { name: "Khimar", badge: null },
                 ].map((item, index) => (
                   <li key={index}>
                     <a
@@ -232,7 +229,7 @@ const ModernFooter = () => {
                   </div>
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-sm">hello@nonamarket.com</p>
+                    <p className="text-sm">nonamarket@gmail.com</p>
                   </div>
                 </div>
 
@@ -262,7 +259,7 @@ const ModernFooter = () => {
                   </div>
                   <div>
                     <p className="font-medium">Alamat</p>
-                    <p className="text-sm">Jakarta, Indonesia</p>
+                    <p className="text-sm">Tangerang, Indonesia</p>
                   </div>
                 </div>
               </div>
