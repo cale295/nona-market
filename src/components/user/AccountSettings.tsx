@@ -18,7 +18,12 @@ import {
   Settings,
   Check,
   Loader,
+  Eye,
+  EyeOff,
+  Lock,
 } from "lucide-react";
+
+// Import the real supabase client
 import { supabase } from "../../lib/supabase";
 
 interface UserData {
@@ -41,6 +46,20 @@ const AccountSettings: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  
+  // Password change states
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
     const getUserData = async () => {
@@ -87,6 +106,14 @@ const AccountSettings: React.FC = () => {
 
   const handleInputChange = (field: keyof UserData, value: string) => {
     setUserData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
+    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   const handleImageUpload = async (
@@ -203,6 +230,60 @@ const AccountSettings: React.FC = () => {
     }
   };
 
+  const handlePasswordUpdate = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      alert("Semua field password harus diisi");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert("Password baru dan konfirmasi password tidak cocok");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      alert("Password baru harus minimal 6 karakter");
+      return;
+    }
+
+    if (passwordData.newPassword === passwordData.currentPassword) {
+      alert("Password baru harus berbeda dengan password lama");
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    try {
+      // Update password using Supabase auth
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword,
+      });
+
+      if (error) {
+        console.error("Error updating password:", error);
+        alert("Gagal mengubah password: " + error.message);
+      } else {
+        alert("Password berhasil diubah!");
+        setShowPasswordModal(false);
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setShowPasswords({
+          current: false,
+          new: false,
+          confirm: false,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert("Terjadi kesalahan saat mengubah password");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Apakah Anda yakin ingin logout?");
     if (confirmLogout) {
@@ -223,6 +304,20 @@ const AccountSettings: React.FC = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
+  };
+
+  const closePasswordModal = () => {
+    setShowPasswordModal(false);
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setShowPasswords({
+      current: false,
+      new: false,
+      confirm: false,
+    });
   };
 
   if (loading) {
@@ -499,11 +594,7 @@ const AccountSettings: React.FC = () => {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <button
-                  onClick={() =>
-                    alert(
-                      "Fitur ganti password akan dikirim melalui email reset password."
-                    )
-                  }
+                  onClick={() => setShowPasswordModal(true)}
                   className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-4 rounded-2xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
                 >
                   <Key className="w-5 h-5" />
@@ -534,6 +625,173 @@ const AccountSettings: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">
+                  Ganti Password
+                </h3>
+              </div>
+              <button
+                onClick={closePasswordModal}
+                className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center transition-all duration-300"
+              >
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Current Password */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Password Saat Ini *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPasswords.current ? "text" : "password"}
+                    value={passwordData.currentPassword}
+                    onChange={(e) =>
+                      handlePasswordChange("currentPassword", e.target.value)
+                    }
+                    className="w-full bg-white/60 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
+                    placeholder="Masukkan password saat ini"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePasswordVisibility("current")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    {showPasswords.current ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Password Baru *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPasswords.new ? "text" : "password"}
+                    value={passwordData.newPassword}
+                    onChange={(e) =>
+                      handlePasswordChange("newPassword", e.target.value)
+                    }
+                    className="w-full bg-white/60 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
+                    placeholder="Masukkan password baru (min. 6 karakter)"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePasswordVisibility("new")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    {showPasswords.new ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Password harus minimal 6 karakter
+                </p>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">
+                  Konfirmasi Password Baru *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPasswords.confirm ? "text" : "password"}
+                    value={passwordData.confirmPassword}
+                    onChange={(e) =>
+                      handlePasswordChange("confirmPassword", e.target.value)
+                    }
+                    className="w-full bg-white/60 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
+                    placeholder="Ulangi password baru"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePasswordVisibility("confirm")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    {showPasswords.confirm ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Password strength indicator */}
+              {passwordData.newPassword && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-2xl border border-blue-200/50">
+                  <div className="flex items-center space-x-2 text-blue-700">
+                    <Shield className="w-4 h-4" />
+                    <span className="text-sm font-medium">
+                      Kekuatan Password: {
+                        passwordData.newPassword.length < 6 ? "Lemah" :
+                        passwordData.newPassword.length < 8 ? "Sedang" :
+                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordData.newPassword) ? "Kuat" : "Sedang"
+                      }
+                    </span>
+                  </div>
+                  <div className="mt-2 text-xs text-blue-600">
+                    Tips: Gunakan kombinasi huruf besar, huruf kecil, dan angka
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={handlePasswordUpdate}
+                  disabled={passwordLoading}
+                  className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-3 rounded-2xl font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {passwordLoading ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin" />
+                      <span>Memperbarui...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Simpan Password</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={closePasswordModal}
+                  disabled={passwordLoading}
+                  className="bg-gray-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-gray-600 transition-all duration-300 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Batal</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
