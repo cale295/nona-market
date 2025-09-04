@@ -27,7 +27,7 @@ const Login: React.FC = () => {
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("role")
-        .eq("email", email)
+        .eq("id_user", data.user.id)
         .single();
 
       if (userError) {
