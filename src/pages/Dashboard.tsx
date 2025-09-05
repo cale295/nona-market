@@ -23,6 +23,7 @@ type ChartData = {
   count: number;
 };
 
+
 const AdminDashboard: React.FC = () => {
   const [userCount, setUserCount] = useState(0);
   const [orderCount, setOrderCount] = useState(0);
@@ -32,6 +33,52 @@ const AdminDashboard: React.FC = () => {
   const [orderChange, setOrderChange] = useState(0);
   const [productChange, setProductChange] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [systemStatus, setSystemStatus] = useState({
+  database: "loading",
+  api: "loading",
+  server: "loading",
+});
+
+const checkSystemStatus = async () => {
+  try {
+    // Cek Database
+    const { error: dbError } = await supabase
+      .from("users")
+      .select("id")
+      .limit(1);
+    const dbStatus = dbError ? "offline" : "online";
+
+    // Cek API (ubah URL ke endpoint kamu)
+    const apiResponse = await fetch("/api/health").catch(() => null);
+    const apiStatus = apiResponse && apiResponse.ok ? "online" : "offline";
+
+    // Cek Server (ping origin)
+    const serverResponse = await fetch("/", { method: "HEAD" }).catch(
+      () => null
+    );
+    const serverStatus =
+      serverResponse && serverResponse.ok ? "online" : "offline";
+
+    setSystemStatus({
+      database: dbStatus,
+      api: apiStatus,
+      server: serverStatus,
+    });
+  } catch (err) {
+    console.error("Gagal cek status sistem:", err);
+    setSystemStatus({
+      database: "offline",
+      api: "offline",
+      server: "offline",
+    });
+  }
+};
+
+useEffect(() => {
+  checkSystemStatus();
+  const interval = setInterval(checkSystemStatus, 10000); // cek tiap 10 detik
+  return () => clearInterval(interval);
+}, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -407,16 +454,38 @@ const AdminDashboard: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-sm">Database: Online</span>
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          systemStatus.database === "online"
+                            ? "bg-green-400 animate-pulse"
+                            : "bg-red-400"
+                        }`}
+                      ></div>
+                      <span className="text-sm">
+                        Database: {systemStatus.database}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-sm">API: Responsif</span>
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          systemStatus.api === "online"
+                            ? "bg-green-400 animate-pulse"
+                            : "bg-red-400"
+                        }`}
+                      ></div>
+                      <span className="text-sm">API: {systemStatus.api}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-sm">Server: Normal</span>
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          systemStatus.server === "online"
+                            ? "bg-green-400 animate-pulse"
+                            : "bg-red-400"
+                        }`}
+                      ></div>
+                      <span className="text-sm">
+                        Server: {systemStatus.server}
+                      </span>
                     </div>
                   </div>
                 </div>
