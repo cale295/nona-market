@@ -141,7 +141,6 @@ const AdminDashboard: React.FC = () => {
     title,
     count,
     change,
-    color,
     gradient,
     delay = 0,
   }: {
