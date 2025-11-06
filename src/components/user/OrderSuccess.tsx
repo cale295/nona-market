@@ -42,7 +42,6 @@ const OrderSuccess: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-20 h-20 bg-indigo-500 rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-20 w-16 h-16 bg-purple-500 rounded-full animate-bounce"></div>
@@ -52,9 +51,7 @@ const OrderSuccess: React.FC = () => {
 
       <div className="min-h-screen flex items-center justify-center py-8 px-4 relative z-10">
         <div className="max-w-2xl w-full">
-          {/* Success Animation Card */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 text-center border border-white/20 shadow-2xl mb-6">
-            {/* Success Icon with Animation */}
             <div className="relative mb-8">
               <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg animate-bounce">
                 <CheckCircle className="w-12 h-12 text-white" />
@@ -70,7 +67,6 @@ const OrderSuccess: React.FC = () => {
               dengan baik.
             </p>
 
-            {/* Trust Indicators */}
             <div className="flex items-center justify-center space-x-6 mb-8 text-sm">
               <div className="flex items-center text-green-600">
                 <Shield className="w-4 h-4 mr-1" />
@@ -87,7 +83,6 @@ const OrderSuccess: React.FC = () => {
             </div>
           </div>
 
-          {/* Order Details Card */}
           {orderId && orderData && (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg mb-6">
               <div className="flex items-center space-x-3 mb-6">
@@ -132,7 +127,6 @@ const OrderSuccess: React.FC = () => {
                 </div>
               </div>
 
-              {/* Order Items */}
               {orderData.items && (
                 <div className="space-y-3">
                   <h3 className="font-bold text-gray-800 mb-3">
@@ -161,7 +155,6 @@ const OrderSuccess: React.FC = () => {
             </div>
           )}
 
-          {/* Status Information */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg mb-6">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
@@ -185,7 +178,6 @@ const OrderSuccess: React.FC = () => {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="space-y-4">
             <button
               onClick={() => navigate("/")}
@@ -204,7 +196,6 @@ const OrderSuccess: React.FC = () => {
             </button>
           </div>
 
-          {/* Customer Service Info */}
           <div className="mt-8 text-center">
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
               <div className="flex items-center justify-center space-x-2 mb-3">

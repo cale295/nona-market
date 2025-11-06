@@ -53,8 +53,8 @@ const Checkout: React.FC = () => {
   };
   const getMainImageUrl = (images: string[]): string => {
     if (images.length > 0) return images[0];
-    return "/placeholder.jpg"; // ganti dengan placeholder-mu
-  }
+    return "./placeholder.png";
+  };
   useEffect(() => {
     const getCurrentUser = async () => {
       const {
@@ -71,8 +71,9 @@ const Checkout: React.FC = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-  .from("carts")
-  .select(`
+        .from("carts")
+        .select(
+          `
     *,
     products (
       id_produk,
@@ -82,48 +83,46 @@ const Checkout: React.FC = () => {
       gambar_produk,
       stok
     )
-  `)
-  .in("id_keranjang", selectedCartIds)
-  .eq("id_user", user.id)
-  .order("created_at", { ascending: false });
+  `
+        )
+        .in("id_keranjang", selectedCartIds)
+        .eq("id_user", user.id)
+        .order("created_at", { ascending: false });
 
-if (error) throw error;
+      if (error) throw error;
 
-// Define a better type for the Supabase response
-type SupabaseCartItem = {
-  id_keranjang: number;
-  id_user: string;
-  id_produk: number;
-  jumlah: number;
-  created_at: string;
-  updated_at: string;
-  products: {
-    id_produk: number;
-    nama_produk: string;
-    deskripsi?: string;
-    harga: number;
-    gambar_produk: string[] | string;
-    stok: number;
-  };
-};
+      type SupabaseCartItem = {
+        id_keranjang: number;
+        id_user: string;
+        id_produk: number;
+        jumlah: number;
+        created_at: string;
+        updated_at: string;
+        products: {
+          id_produk: number;
+          nama_produk: string;
+          deskripsi?: string;
+          harga: number;
+          gambar_produk: string[] | string;
+          stok: number;
+        };
+      };
 
-const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
-  const safeImages =
-    Array.isArray(item.products.gambar_produk)
-      ? item.products.gambar_produk
-      : [item.products.gambar_produk];
+      const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
+        const safeImages = Array.isArray(item.products.gambar_produk)
+          ? item.products.gambar_produk
+          : [item.products.gambar_produk];
 
-  return {
-    ...item,
-    products: {
-      ...item.products,
-      gambar_produk: safeImages,
-    },
-  };
-});
+        return {
+          ...item,
+          products: {
+            ...item.products,
+            gambar_produk: safeImages,
+          },
+        };
+      });
 
-setCartItems(safeData);
-
+      setCartItems(safeData);
     } catch (error) {
       console.error("Error fetching cart items:", error);
     } finally {
@@ -215,7 +214,7 @@ setCartItems(safeData);
         (sum, item) => sum + item.products.harga * item.jumlah,
         0
       );
-      
+
       const orderData = {
         id_user: user?.id,
         tanggal_order: new Date().toISOString(),
@@ -288,7 +287,6 @@ setCartItems(safeData);
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center relative overflow-hidden">
-        {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-20 h-20 bg-indigo-500 rounded-full animate-pulse"></div>
           <div className="absolute top-40 right-32 w-16 h-16 bg-purple-500 rounded-full animate-bounce"></div>
@@ -333,7 +331,6 @@ setCartItems(safeData);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-20 h-20 bg-indigo-500 rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-20 w-16 h-16 bg-purple-500 rounded-full animate-bounce"></div>
@@ -342,7 +339,6 @@ setCartItems(safeData);
       </div>
 
       <div className="container mx-auto px-4 max-w-6xl py-8 relative z-10">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link
@@ -370,7 +366,6 @@ setCartItems(safeData);
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Order Summary */}
           <div className="space-y-6">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
               <div className="flex items-center space-x-3 mb-6">
@@ -395,7 +390,8 @@ setCartItems(safeData);
                         alt={item.products.nama_produk}
                         className="w-16 h-16 rounded-lg object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                          (e.target as HTMLImageElement).src =
+                            "./placeholder.png";
                         }}
                       />
                     </div>
@@ -437,9 +433,7 @@ setCartItems(safeData);
             </div>
           </div>
 
-          {/* Payment Section */}
           <div className="space-y-6">
-            {/* Payment Instructions */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
@@ -463,7 +457,6 @@ setCartItems(safeData);
                 </p>
               </div>
 
-              {/* Bank Info */}
               <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl border border-blue-100">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -480,7 +473,8 @@ setCartItems(safeData);
                     7421927412
                   </p>
                   <p>
-                    <span className="font-medium">Atas Nama:</span> KARIN AZZAHRA
+                    <span className="font-medium">Atas Nama:</span> KARIN
+                    AZZAHRA
                   </p>
                   <p className="text-lg">
                     <span className="font-medium">Jumlah:</span>
@@ -491,7 +485,6 @@ setCartItems(safeData);
                 </div>
               </div>
 
-              {/* Trust Indicators */}
               <div className="flex items-center justify-center space-x-6 mt-6 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Shield className="w-4 h-4 text-green-500 mr-1" />
@@ -504,7 +497,6 @@ setCartItems(safeData);
               </div>
             </div>
 
-            {/* Upload Payment Proof */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
@@ -584,7 +576,6 @@ setCartItems(safeData);
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               onClick={handleSubmitOrder}
               disabled={!paymentProof || submitting}

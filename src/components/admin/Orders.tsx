@@ -65,11 +65,11 @@ const OrderManager: React.FC = () => {
     SHIPPED: "shipped",
     DELIVERED: "delivered",
   };
-  
+
   const getMainImageUrl = (images: string[]): string => {
     if (images.length > 0) return images[0];
-    return "/placeholder.jpg"; // ganti dengan placeholder-mu
-  }
+    return "./placeholder.png"; // ganti dengan placeholder-mu
+  };
 
   const fetchOrders = async () => {
     try {
@@ -133,97 +133,96 @@ const OrderManager: React.FC = () => {
         };
       });
       setOrderDetails(safeData);
-    };
+    }
   };
 
-  // Fungsi untuk mengecek dan mengurangi stok
   const checkAndReduceStock = async (orderId: string) => {
     try {
-      // Ambil detail order
-      const { data: orderDetailsData, error: orderDetailsError } = await supabase
-        .from("order_detail")
-        .select(
-          `
+      const { data: orderDetailsData, error: orderDetailsError } =
+        await supabase
+          .from("order_detail")
+          .select(
+            `
           *,
           products (
             nama_produk,
             stok
           )
         `
-        )
-        .eq("id_order", orderId);
+          )
+          .eq("id_order", orderId);
 
       if (orderDetailsError) {
-        throw new Error(`Error fetching order details: ${orderDetailsError.message}`);
+        throw new Error(
+          `Error fetching order details: ${orderDetailsError.message}`
+        );
       }
 
-      // Cek apakah stok mencukupi untuk semua produk
       const stockCheck = [];
       for (const detail of orderDetailsData) {
         const currentStock = detail.products.stok;
         const requiredStock = detail.jumlah;
-        
+
         if (currentStock < requiredStock) {
           stockCheck.push({
             productName: detail.products.nama_produk,
             currentStock,
             requiredStock,
-            sufficient: false
+            sufficient: false,
           });
         } else {
           stockCheck.push({
             productName: detail.products.nama_produk,
             currentStock,
             requiredStock,
-            sufficient: true
+            sufficient: true,
           });
         }
       }
 
-      // Jika ada produk yang stoknya tidak mencukupi
-      const insufficientStock = stockCheck.filter(item => !item.sufficient);
+      const insufficientStock = stockCheck.filter((item) => !item.sufficient);
       if (insufficientStock.length > 0) {
         let errorMessage = "Stok tidak mencukupi untuk produk berikut:\n";
-        insufficientStock.forEach(item => {
+        insufficientStock.forEach((item) => {
           errorMessage += `- ${item.productName}: Stok tersedia ${item.currentStock}, diperlukan ${item.requiredStock}\n`;
         });
         throw new Error(errorMessage);
       }
 
-      // Jika semua stok mencukupi, kurangi stok
       const stockUpdatePromises = orderDetailsData.map(async (detail) => {
         const newStock = detail.products.stok - detail.jumlah;
-        
+
         const { error: updateError } = await supabase
           .from("products")
           .update({ stok: newStock })
           .eq("id_produk", detail.id_produk);
 
         if (updateError) {
-          throw new Error(`Error updating stock for ${detail.products.nama_produk}: ${updateError.message}`);
+          throw new Error(
+            `Error updating stock for ${detail.products.nama_produk}: ${updateError.message}`
+          );
         }
 
         return {
           productName: detail.products.nama_produk,
           previousStock: detail.products.stok,
           newStock: newStock,
-          reducedBy: detail.jumlah
+          reducedBy: detail.jumlah,
         };
       });
 
       const stockUpdateResults = await Promise.all(stockUpdatePromises);
-      
+
       return {
         success: true,
         message: "Stok berhasil dikurangi",
-        details: stockUpdateResults
+        details: stockUpdateResults,
       };
-
     } catch (error) {
       const err = error as Error;
       return {
         success: false,
-        message: err.message
+        message: err.message,
       };
     }
   };
@@ -244,10 +243,10 @@ const OrderManager: React.FC = () => {
       return;
     }
 
-    // Konfirmasi khusus untuk approve/confirm order
     let confirmMessage = `Apakah Anda yakin ingin mengubah status order menjadi ${newStatus}?`;
     if (newStatus === "confirmed" || newStatus === "approved") {
-      confirmMessage += "\n\nPerhatian: Stok produk akan dikurangi sesuai dengan jumlah pesanan.";
+      confirmMessage +=
+        "\n\nPerhatian: Stok produk akan dikurangi sesuai dengan jumlah pesanan.";
     }
 
     if (!confirm(confirmMessage)) {
@@ -257,20 +256,18 @@ const OrderManager: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Jika status baru adalah approved/confirmed, kurangi stok terlebih dahulu
       if (newStatus === "confirmed" || newStatus === "approved") {
         const stockResult = await checkAndReduceStock(orderId);
-        
+
         if (!stockResult.success) {
           alert("Gagal mengupdate status order:\n" + stockResult.message);
           setIsLoading(false);
           return;
         }
-        
+
         console.log("Stock reduced successfully:", stockResult.details);
       }
 
-      // Update status order
       const { data, error } = await supabase
         .from("orders")
         .update({ status: newStatus })
@@ -282,19 +279,22 @@ const OrderManager: React.FC = () => {
         alert("Gagal mengupdate status order: " + error.message);
       } else {
         console.log("Order status updated successfully:", data);
-        
+
         let successMessage = `Status order berhasil diubah menjadi ${newStatus}`;
         if (newStatus === "confirmed" || newStatus === "approved") {
-          successMessage += "\nStok produk telah dikurangi sesuai dengan jumlah pesanan.";
+          successMessage +=
+            "\nStok produk telah dikurangi sesuai dengan jumlah pesanan.";
         }
-        
+
         alert(successMessage);
         await fetchOrders();
         setShowModal(false);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
-      alert("Terjadi kesalahan saat mengupdate status: " + (err as Error).message);
+      alert(
+        "Terjadi kesalahan saat mengupdate status: " + (err as Error).message
+      );
     } finally {
       setIsLoading(false);
     }
@@ -365,7 +365,6 @@ const OrderManager: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
       <div className="relative overflow-hidden bg-white border-b border-gray-100">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-5"></div>
         <div className="relative z-10 p-8">
@@ -386,7 +385,6 @@ const OrderManager: React.FC = () => {
       </div>
 
       <div className="p-8">
-        {/* Filter Section */}
         <div className="mb-8 bg-white rounded-3xl shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
             <div className="flex items-center gap-2">
@@ -418,7 +416,6 @@ const OrderManager: React.FC = () => {
           </div>
         </div>
 
-        {/* Orders Grid */}
         <div className="grid grid-cols-1 gap-6">
           {filteredOrders.map((order, index) => {
             const statusConfig = getStatusConfig(order.status);
@@ -515,7 +512,6 @@ const OrderManager: React.FC = () => {
           })}
         </div>
 
-        {/* Empty State */}
         {filteredOrders.length === 0 && (
           <div className="text-center py-16">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
@@ -531,7 +527,6 @@ const OrderManager: React.FC = () => {
           </div>
         )}
 
-        {/* Modal */}
         {showModal && selectedOrder && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -555,7 +550,6 @@ const OrderManager: React.FC = () => {
               </div>
 
               <div className="p-8">
-                {/* Customer Info */}
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-6 border border-blue-100">
                   <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
                     <User className="w-5 h-5 text-blue-600" />
@@ -593,7 +587,6 @@ const OrderManager: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Order Details */}
                 <div className="mb-6">
                   <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
                     <Package2 className="w-5 h-5 text-blue-600" />
@@ -611,7 +604,7 @@ const OrderManager: React.FC = () => {
                           className="w-20 h-20 rounded-lg object-cover"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
-                              "/placeholder.jpg";
+                              "./placeholder.png";
                           }}
                         />
                         <div className="flex-1">
@@ -654,7 +647,6 @@ const OrderManager: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Payment Proof */}
                 <div className="mb-6">
                   <h3 className="flex items-center gap-2 font-bold text-gray-800 mb-4">
                     <DollarSign className="w-5 h-5 text-blue-600" />
@@ -678,7 +670,6 @@ const OrderManager: React.FC = () => {
                   )}
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3">
                   {selectedOrder.status === "pending" && (
                     <>

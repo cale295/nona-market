@@ -29,9 +29,7 @@ const ModernFooter = () => {
 
   return (
     <div className="relative">
-      {/* Newsletter Section with Gradient Background */}
       <section className="relative py-20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 overflow-hidden">
-        {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full animate-pulse"></div>
           <div className="absolute top-32 right-20 w-16 h-16 bg-white rounded-full animate-bounce"></div>
@@ -86,7 +84,6 @@ const ModernFooter = () => {
             )}
           </div>
 
-          {/* Trust Indicators */}
           <div className="flex items-center justify-center mt-8 space-x-6 text-white/70">
             <div className="flex items-center">
               <Star className="w-5 h-5 text-yellow-300 mr-1" />
@@ -100,21 +97,17 @@ const ModernFooter = () => {
         </div>
       </section>
 
-      {/* Main Footer */}
       <footer className="bg-gray-900 text-white">
-        {/* Main Footer Content */}
         <div className="container mx-auto px-4 lg:px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-            {/* Brand Section */}
             <div className="lg:col-span-1">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="relative">
                   <img
-                src="./logo.webp"
-                alt="Nona Market"
-                className="w-10 h-10 md:w-12 md:h-12 shadow-lg group-hover:shadow-xl transition-all duration-300"
-              />
-                  
+                    src="./logo.webp"
+                    alt="Nona Market"
+                    className="w-10 h-10 md:w-12 md:h-12 shadow-lg group-hover:shadow-xl transition-all duration-300"
+                  />
                 </div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                   Nona Market
@@ -125,7 +118,6 @@ const ModernFooter = () => {
                 pelayanan terbaik untuk muslimah Indonesia.
               </p>
 
-              {/* Social Media */}
               <div className="flex space-x-4">
                 {[
                   {
@@ -155,7 +147,6 @@ const ModernFooter = () => {
               </div>
             </div>
 
-            {/* Quick Links */}
             <div>
               <h4 className="font-bold mb-6 text-lg text-indigo-300">
                 Quick Links
@@ -182,7 +173,6 @@ const ModernFooter = () => {
               </ul>
             </div>
 
-            {/* Categories */}
             <div>
               <h4 className="font-bold mb-6 text-lg text-purple-300">
                 Kategori Produk
@@ -222,7 +212,6 @@ const ModernFooter = () => {
               </ul>
             </div>
 
-            {/* Contact Info */}
             <div>
               <h4 className="font-bold mb-6 text-lg text-pink-300">
                 Hubungi Kami
@@ -272,7 +261,6 @@ const ModernFooter = () => {
           </div>
         </div>
 
-        {/* Bottom Footer */}
         <div className="border-t border-gray-800">
           <div className="container mx-auto px-4 lg:px-6 py-6">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">

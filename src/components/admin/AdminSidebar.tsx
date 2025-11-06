@@ -47,7 +47,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
 
   return (
     <>
-      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden transition-opacity duration-300"
@@ -55,13 +54,11 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-40 w-72 min-h-screen bg-white shadow-2xl transform transition-all duration-500 ease-out md:static md:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Header */}
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -82,7 +79,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
           </div>
         </div>
 
-        {/* Navigation */}
         <nav className="p-6 space-y-2">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
@@ -143,7 +139,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
                   }`}
                 />
 
-                {/* Active indicator */}
                 {isActive && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full"></div>
                 )}
@@ -151,10 +146,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
             );
           })}
 
-          {/* Divider */}
           <div className="my-6 border-t border-gray-200"></div>
 
-          {/* Store Link */}
           <Link
             to="/"
             onClick={() => setIsOpen(false)}
@@ -175,7 +168,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
           </Link>
         </nav>
 
-        {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border border-gray-100">
             <div className="flex items-center gap-3">

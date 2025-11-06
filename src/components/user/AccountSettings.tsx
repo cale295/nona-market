@@ -23,7 +23,6 @@ import {
   Lock,
 } from "lucide-react";
 
-// Import the real supabase client
 import { supabase } from "../../lib/supabase";
 
 interface UserData {
@@ -46,8 +45,7 @@ const AccountSettings: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  
-  // Password change states
+
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -231,7 +229,11 @@ const AccountSettings: React.FC = () => {
   };
 
   const handlePasswordUpdate = async () => {
-    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword
+    ) {
       alert("Semua field password harus diisi");
       return;
     }
@@ -254,7 +256,6 @@ const AccountSettings: React.FC = () => {
     setPasswordLoading(true);
 
     try {
-      // Update password using Supabase auth
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword,
       });
@@ -336,7 +337,6 @@ const AccountSettings: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-20 h-20 bg-indigo-500 rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-20 w-16 h-16 bg-purple-500 rounded-full animate-bounce"></div>
@@ -373,7 +373,6 @@ const AccountSettings: React.FC = () => {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Profile Card */}
           <div className="lg:col-span-1">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 p-6">
               <div className="text-center mb-6">
@@ -443,7 +442,6 @@ const AccountSettings: React.FC = () => {
                 </div>
               </div>
 
-              {/* Trust Indicators */}
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 text-gray-600">
                   <div className="w-8 h-8 bg-pink-100 rounded-xl flex items-center justify-center">
@@ -467,7 +465,6 @@ const AccountSettings: React.FC = () => {
             </div>
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Information */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 p-6">
@@ -581,7 +578,6 @@ const AccountSettings: React.FC = () => {
               </div>
             </div>
 
-            {/* Security Section */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center">
@@ -626,7 +622,6 @@ const AccountSettings: React.FC = () => {
         </div>
       </div>
 
-      {/* Password Change Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl max-w-md w-full p-6">
@@ -648,7 +643,6 @@ const AccountSettings: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Current Password */}
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Password Saat Ini *
@@ -678,7 +672,6 @@ const AccountSettings: React.FC = () => {
                 </div>
               </div>
 
-              {/* New Password */}
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Password Baru *
@@ -711,7 +704,6 @@ const AccountSettings: React.FC = () => {
                 </p>
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="block text-gray-700 font-medium mb-2">
                   Konfirmasi Password Baru *
@@ -741,17 +733,21 @@ const AccountSettings: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password strength indicator */}
               {passwordData.newPassword && (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-2xl border border-blue-200/50">
                   <div className="flex items-center space-x-2 text-blue-700">
                     <Shield className="w-4 h-4" />
                     <span className="text-sm font-medium">
-                      Kekuatan Password: {
-                        passwordData.newPassword.length < 6 ? "Lemah" :
-                        passwordData.newPassword.length < 8 ? "Sedang" :
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordData.newPassword) ? "Kuat" : "Sedang"
-                      }
+                      Kekuatan Password:{" "}
+                      {passwordData.newPassword.length < 6
+                        ? "Lemah"
+                        : passwordData.newPassword.length < 8
+                        ? "Sedang"
+                        : /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(
+                            passwordData.newPassword
+                          )
+                        ? "Kuat"
+                        : "Sedang"}
                     </span>
                   </div>
                   <div className="mt-2 text-xs text-blue-600">
@@ -760,7 +756,6 @@ const AccountSettings: React.FC = () => {
                 </div>
               )}
 
-              {/* Action Buttons */}
               <div className="flex space-x-3 mt-6">
                 <button
                   onClick={handlePasswordUpdate}

@@ -48,9 +48,9 @@ const Cart: React.FC = () => {
 
   const getMainImageUrl = (images: string[]): string => {
     if (images.length > 0) return images[0];
-    return "/placeholder.jpg";
+    return "./placeholder.png";
   };
-  
+
   useEffect(() => {
     const getCurrentUser = async () => {
       const {
@@ -87,40 +87,39 @@ const Cart: React.FC = () => {
       if (error) throw error;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       type SupabaseCartItem = {
-  id_keranjang: number;
-  id_user: string;
-  id_produk: number;
-  jumlah: number;
-  created_at: string;
-  updated_at: string;
-  products: {
-    id_produk: number;
-    nama_produk: string;
-    deskripsi?: string;
-    harga: number;
-    gambar_produk: string | string[];
-    stok: number;
-  };
-};
+        id_keranjang: number;
+        id_user: string;
+        id_produk: number;
+        jumlah: number;
+        created_at: string;
+        updated_at: string;
+        products: {
+          id_produk: number;
+          nama_produk: string;
+          deskripsi?: string;
+          harga: number;
+          gambar_produk: string | string[];
+          stok: number;
+        };
+      };
 
-const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
-  const product = Array.isArray(item.products)
-    ? item.products[0] // 👈 unwrap single product
-    : item.products;
+      const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
+        const product = Array.isArray(item.products)
+          ? item.products[0]
+          : item.products;
 
-  const safeImages =
-    Array.isArray(product.gambar_produk)
-      ? product.gambar_produk
-      : [product.gambar_produk];
+        const safeImages = Array.isArray(product.gambar_produk)
+          ? product.gambar_produk
+          : [product.gambar_produk];
 
-  return {
-    ...item,
-    products: {
-      ...product,
-      gambar_produk: safeImages,
-    },
-  };
-});
+        return {
+          ...item,
+          products: {
+            ...product,
+            gambar_produk: safeImages,
+          },
+        };
+      });
       setCartItems(safeData);
     } catch (error) {
       console.error("Error fetching cart items:", error);
@@ -214,15 +213,14 @@ const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
       });
     }
   };
-  
+
   const handleCheckout = () => {
     if (selectedItems.size === 0) {
       return;
     }
     const selectedIdsArray = Array.from(selectedItems);
-    navigate('/checkout', { state: { selectedCartIds: selectedIdsArray } });
+    navigate("/checkout", { state: { selectedCartIds: selectedIdsArray } });
   };
-
 
   const selectedItemsData = cartItems.filter((item) =>
     selectedItems.has(item.id_keranjang)
@@ -404,10 +402,10 @@ const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
                         alt={item.products.nama_produk}
                         className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl shadow-lg"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                          (e.target as HTMLImageElement).src =
+                            "./placeholder.png";
                         }}
                       />
-                      
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-gray-800 text-xl mb-2 truncate">
@@ -486,109 +484,109 @@ const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
             </div>
 
             <div className="lg:col-span-1">
-              {/* Desktop Summary - Hidden on Mobile */}
-            <div className="hidden lg:block lg:col-span-1">
-              <div className="sticky top-8">
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-white/20 shadow-xl">
-                  <div className="flex items-center space-x-3 mb-6">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                      <CreditCard className="w-5 h-5 text-white" />
+              <div className="hidden lg:block lg:col-span-1">
+                <div className="sticky top-8">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-white/20 shadow-xl">
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <CreditCard className="w-5 h-5 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        Ringkasan
+                      </h2>
                     </div>
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                      Ringkasan
-                    </h2>
-                  </div>
 
-                  <div className="space-y-4 mb-6">
-                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                      <span className="text-gray-700 font-medium">
-                        Total Item
-                      </span>
-                      <span className="font-bold text-indigo-600">
-                        {totalItems}
-                      </span>
+                    <div className="space-y-4 mb-6">
+                      <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                        <span className="text-gray-700 font-medium">
+                          Total Item
+                        </span>
+                        <span className="font-bold text-indigo-600">
+                          {totalItems}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                        <span className="text-gray-700 font-medium">
+                          Produk Terpilih
+                        </span>
+                        <span className="font-bold text-purple-600">
+                          {selectedItems.size}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl px-4">
+                        <span className="text-lg font-bold text-gray-800">
+                          Total Harga
+                        </span>
+                        <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                          Rp. {formatPrice(totalPrice)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                      <span className="text-gray-700 font-medium">
-                        Produk Terpilih
-                      </span>
-                      <span className="font-bold text-purple-600">
-                        {selectedItems.size}
-                      </span>
+
+                    <div className="flex items-center space-x-4 mb-6 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                        <span>4.9/5 Rating</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Heart className="w-4 h-4 text-pink-500 mr-1" />
+                        <span>Terpercaya</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center py-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl px-4">
-                      <span className="text-lg font-bold text-gray-800">
-                        Total Harga
-                      </span>
-                      <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+
+                    <button
+                      onClick={handleCheckout}
+                      disabled={selectedItems.size === 0}
+                      className={`w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl font-bold text-white text-lg ${
+                        selectedItems.size === 0
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-xl transform hover:scale-105"
+                      } transition-all duration-300`}
+                    >
+                      <CreditCard className="mr-3 w-5 h-5" />
+                      Checkout Sekarang
+                    </button>
+
+                    {selectedItems.size === 0 && (
+                      <p className="text-center text-sm text-gray-500 mt-3">
+                        Pilih produk untuk melanjutkan checkout
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t-2 border-indigo-200 shadow-2xl">
+                <div className="px-4 py-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-xs text-gray-600">
+                        Total ({selectedItems.size} item)
+                      </p>
+                      <p className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         Rp. {formatPrice(totalPrice)}
-                      </span>
+                      </p>
                     </div>
+                    <button
+                      onClick={handleCheckout}
+                      disabled={selectedItems.size === 0}
+                      className={`inline-flex items-center justify-center px-6 py-3 rounded-xl font-bold text-white ${
+                        selectedItems.size === 0
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-lg active:scale-95"
+                      } transition-all duration-300`}
+                    >
+                      <CreditCard className="mr-2 w-4 h-4" />
+                      Checkout
+                    </button>
                   </div>
-
-                  <div className="flex items-center space-x-4 mb-6 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                      <span>4.9/5 Rating</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Heart className="w-4 h-4 text-pink-500 mr-1" />
-                      <span>Terpercaya</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleCheckout}
-                    disabled={selectedItems.size === 0}
-                    className={`w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl font-bold text-white text-lg ${
-                      selectedItems.size === 0
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-xl transform hover:scale-105"
-                    } transition-all duration-300`}
-                  >
-                    <CreditCard className="mr-3 w-5 h-5" />
-                    Checkout Sekarang
-                  </button>
-
                   {selectedItems.size === 0 && (
-                    <p className="text-center text-sm text-gray-500 mt-3">
-                      Pilih produk untuk melanjutkan checkout
+                    <p className="text-center text-xs text-gray-500">
+                      Pilih produk untuk checkout
                     </p>
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Mobile Floating Checkout - Only on Mobile */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t-2 border-indigo-200 shadow-2xl">
-              <div className="px-4 py-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="text-xs text-gray-600">Total ({selectedItems.size} item)</p>
-                    <p className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                      Rp. {formatPrice(totalPrice)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleCheckout}
-                    disabled={selectedItems.size === 0}
-                    className={`inline-flex items-center justify-center px-6 py-3 rounded-xl font-bold text-white ${
-                      selectedItems.size === 0
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-lg active:scale-95"
-                    } transition-all duration-300`}
-                  >
-                    <CreditCard className="mr-2 w-4 h-4" />
-                    Checkout
-                  </button>
-                </div>
-                {selectedItems.size === 0 && (
-                  <p className="text-center text-xs text-gray-500">
-                    Pilih produk untuk checkout
-                  </p>
-                )}
-              </div>
-            </div>
             </div>
           </div>
         )}
@@ -598,4 +596,3 @@ const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
 };
 
 export default Cart;
-

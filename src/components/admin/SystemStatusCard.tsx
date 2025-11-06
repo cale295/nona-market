@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Activity, Wifi, Database, Server } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import React, { useEffect, useState } from "react";
+import { Activity, Wifi, Database, Server } from "lucide-react";
+import { supabase } from "../../lib/supabase";
 
 type SystemStatus = {
   database: {
-    status: 'online' | 'offline' | 'slow';
+    status: "online" | "offline" | "slow";
     responseTime: number;
     lastChecked: Date;
   };
   api: {
-    status: 'responsive' | 'slow' | 'down';
+    status: "responsive" | "slow" | "down";
     responseTime: number;
     lastChecked: Date;
   };
   server: {
-    status: 'normal' | 'high-load' | 'down';
+    status: "normal" | "high-load" | "down";
     uptime: number;
     lastChecked: Date;
   };
@@ -23,17 +23,17 @@ type SystemStatus = {
 const SystemStatusCard: React.FC = () => {
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({
     database: {
-      status: 'offline',
+      status: "offline",
       responseTime: 0,
       lastChecked: new Date(),
     },
     api: {
-      status: 'down',
+      status: "down",
       responseTime: 0,
       lastChecked: new Date(),
     },
     server: {
-      status: 'down',
+      status: "down",
       uptime: 0,
       lastChecked: new Date(),
     },
@@ -41,103 +41,103 @@ const SystemStatusCard: React.FC = () => {
 
   const [isChecking, setIsChecking] = useState(false);
 
-  // Function to check database status
-  const checkDatabaseStatus = async (): Promise<{ status: 'online' | 'offline' | 'slow', responseTime: number }> => {
+  const checkDatabaseStatus = async (): Promise<{
+    status: "online" | "offline" | "slow";
+    responseTime: number;
+  }> => {
     try {
       const startTime = Date.now();
       const { error } = await supabase
-        .from('users')
-        .select('id', { count: 'exact', head: true })
+        .from("users")
+        .select("id", { count: "exact", head: true })
         .limit(1);
-      
+
       const responseTime = Date.now() - startTime;
-      
+
       if (error) {
-        return { status: 'offline', responseTime: 0 };
+        return { status: "offline", responseTime: 0 };
       }
-      
+
       return {
-        status: responseTime > 1000 ? 'slow' : 'online',
+        status: responseTime > 1000 ? "slow" : "online",
         responseTime,
       };
     } catch (error: unknown) {
-        console.error('Database check failed:', error);
-      return { status: 'offline', responseTime: 0 };
+      console.error("Database check failed:", error);
+      return { status: "offline", responseTime: 0 };
     }
   };
 
-  // Function to check API status (example endpoint)
-  const checkApiStatus = async (): Promise<{ status: 'responsive' | 'slow' | 'down', responseTime: number }> => {
+  const checkApiStatus = async (): Promise<{
+    status: "responsive" | "slow" | "down";
+    responseTime: number;
+  }> => {
     try {
       const startTime = Date.now();
-      
-      // Test API with a simple health check
-      const response = await fetch('/api/health-check', {
-        method: 'GET',
+
+      const response = await fetch("/api/health-check", {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
-      
+
       const responseTime = Date.now() - startTime;
-      
+
       if (!response.ok) {
-        return { status: 'down', responseTime: 0 };
+        return { status: "down", responseTime: 0 };
       }
-      
+
       return {
-        status: responseTime > 800 ? 'slow' : 'responsive',
+        status: responseTime > 800 ? "slow" : "responsive",
         responseTime,
       };
     } catch (error: unknown) {
-      // Fallback: check using supabase connection as API proxy
       try {
         const startTime = Date.now();
-        await supabase.from('products').select('id').limit(1);
+        await supabase.from("products").select("id").limit(1);
         const responseTime = Date.now() - startTime;
-        
+
         return {
-          status: responseTime > 800 ? 'slow' : 'responsive',
+          status: responseTime > 800 ? "slow" : "responsive",
           responseTime,
         };
       } catch {
-        console.error('API check failed:', error);
-        return { status: 'down', responseTime: 0 };
+        console.error("API check failed:", error);
+        return { status: "down", responseTime: 0 };
       }
     }
   };
 
-  // Function to check server status
-  const checkServerStatus = async (): Promise<{ status: 'normal' | 'high-load' | 'down', uptime: number }> => {
+  const checkServerStatus = async (): Promise<{
+    status: "normal" | "high-load" | "down";
+    uptime: number;
+  }> => {
     try {
-      // Calculate uptime based on performance metrics
       const startTime = Date.now();
-      
-      // Simulate server load check with multiple quick queries
-      const promises = Array.from({ length: 5 }, () => 
-        supabase.from('users').select('id').limit(1)
+
+      const promises = Array.from({ length: 5 }, () =>
+        supabase.from("users").select("id").limit(1)
       );
-      
+
       await Promise.all(promises);
       const avgResponseTime = (Date.now() - startTime) / 5;
-      
-      // Mock uptime calculation (in real app, you'd get this from monitoring service)
+
       const uptime = Math.min(99.9, 95 + Math.random() * 4.9);
-      
+
       return {
-        status: avgResponseTime > 1500 ? 'high-load' : 'normal',
+        status: avgResponseTime > 1500 ? "high-load" : "normal",
         uptime,
       };
     } catch (error: unknown) {
-        console.error('Server check failed:', error);
-      return { status: 'down', uptime: 0 };
+      console.error("Server check failed:", error);
+      return { status: "down", uptime: 0 };
     }
   };
 
-  // Check all system statuses
   const checkAllStatuses = async () => {
     setIsChecking(true);
-    
+
     try {
       const [databaseResult, apiResult, serverResult] = await Promise.all([
         checkDatabaseStatus(),
@@ -160,58 +160,77 @@ const SystemStatusCard: React.FC = () => {
         },
       });
     } catch (error: unknown) {
-      console.error('Error checking system status:', error);
+      console.error("Error checking system status:", error);
     } finally {
       setIsChecking(false);
     }
   };
 
-  // Auto-refresh every 30 seconds
   useEffect(() => {
     checkAllStatuses();
-    
+
     const interval = setInterval(checkAllStatuses, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
-  // Get status color and icon
   const getStatusColor = (status: string): string => {
     switch (status) {
-      case 'online':
-      case 'responsive':
-      case 'normal':
-        return 'bg-green-400';
-      case 'slow':
-      case 'high-load':
-        return 'bg-yellow-400';
-      case 'offline':
-      case 'down':
-        return 'bg-red-400';
+      case "online":
+      case "responsive":
+      case "normal":
+        return "bg-green-400";
+      case "slow":
+      case "high-load":
+        return "bg-yellow-400";
+      case "offline":
+      case "down":
+        return "bg-red-400";
       default:
-        return 'bg-gray-400';
+        return "bg-gray-400";
     }
   };
 
   const getStatusText = (
-    type: 'database' | 'api' | 'server', 
-    status: SystemStatus['database'] | SystemStatus['api'] | SystemStatus['server']
+    type: "database" | "api" | "server",
+    status:
+      | SystemStatus["database"]
+      | SystemStatus["api"]
+      | SystemStatus["server"]
   ): string => {
     switch (type) {
-      case 'database': {
-        const dbStatus = status as SystemStatus['database'];
-        return `Database: ${dbStatus.status === 'online' ? 'Online' : dbStatus.status === 'slow' ? 'Slow' : 'Offline'} (${dbStatus.responseTime}ms)`;
+      case "database": {
+        const dbStatus = status as SystemStatus["database"];
+        return `Database: ${
+          dbStatus.status === "online"
+            ? "Online"
+            : dbStatus.status === "slow"
+            ? "Slow"
+            : "Offline"
+        } (${dbStatus.responseTime}ms)`;
       }
-      case 'api': {
-        const apiStatus = status as SystemStatus['api'];
-        return `API: ${apiStatus.status === 'responsive' ? 'Responsive' : apiStatus.status === 'slow' ? 'Slow' : 'Down'} (${apiStatus.responseTime}ms)`;
+      case "api": {
+        const apiStatus = status as SystemStatus["api"];
+        return `API: ${
+          apiStatus.status === "responsive"
+            ? "Responsive"
+            : apiStatus.status === "slow"
+            ? "Slow"
+            : "Down"
+        } (${apiStatus.responseTime}ms)`;
       }
-      case 'server': {
-        const serverStatus = status as SystemStatus['server'];
-        return `Server: ${serverStatus.status === 'normal' ? 'Normal' : serverStatus.status === 'high-load' ? 'High Load' : 'Down'} (${serverStatus.uptime.toFixed(1)}%)`;
+      case "server": {
+        const serverStatus = status as SystemStatus["server"];
+        return `Server: ${
+          serverStatus.status === "normal"
+            ? "Normal"
+            : serverStatus.status === "high-load"
+            ? "High Load"
+            : "Down"
+        } (${serverStatus.uptime.toFixed(1)}%)`;
       }
       default:
-        return '';
+        return "";
     }
   };
 
@@ -237,38 +256,53 @@ const SystemStatusCard: React.FC = () => {
       </div>
 
       <div className="space-y-3">
-        {/* Database Status */}
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 ${getStatusColor(systemStatus.database.status)} rounded-full ${systemStatus.database.status === 'online' ? 'animate-pulse' : ''}`}></div>
+          <div
+            className={`w-2 h-2 ${getStatusColor(
+              systemStatus.database.status
+            )} rounded-full ${
+              systemStatus.database.status === "online" ? "animate-pulse" : ""
+            }`}
+          ></div>
           <span className="text-sm flex-1">
-            {getStatusText('database', systemStatus.database)}
+            {getStatusText("database", systemStatus.database)}
           </span>
           <Database className="w-3 h-3 opacity-70" />
         </div>
 
-        {/* API Status */}
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 ${getStatusColor(systemStatus.api.status)} rounded-full ${systemStatus.api.status === 'responsive' ? 'animate-pulse' : ''}`}></div>
+          <div
+            className={`w-2 h-2 ${getStatusColor(
+              systemStatus.api.status
+            )} rounded-full ${
+              systemStatus.api.status === "responsive" ? "animate-pulse" : ""
+            }`}
+          ></div>
           <span className="text-sm flex-1">
-            {getStatusText('api', systemStatus.api)}
+            {getStatusText("api", systemStatus.api)}
           </span>
           <Wifi className="w-3 h-3 opacity-70" />
         </div>
 
-        {/* Server Status */}
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 ${getStatusColor(systemStatus.server.status)} rounded-full ${systemStatus.server.status === 'normal' ? 'animate-pulse' : ''}`}></div>
+          <div
+            className={`w-2 h-2 ${getStatusColor(
+              systemStatus.server.status
+            )} rounded-full ${
+              systemStatus.server.status === "normal" ? "animate-pulse" : ""
+            }`}
+          ></div>
           <span className="text-sm flex-1">
-            {getStatusText('server', systemStatus.server)}
+            {getStatusText("server", systemStatus.server)}
           </span>
           <Server className="w-3 h-3 opacity-70" />
         </div>
       </div>
 
-      {/* Last Updated */}
       <div className="mt-4 pt-3 border-t border-white/20">
         <p className="text-xs opacity-70">
-          Last updated: {systemStatus.database.lastChecked.toLocaleTimeString('id-ID')}
+          Last updated:{" "}
+          {systemStatus.database.lastChecked.toLocaleTimeString("id-ID")}
         </p>
       </div>
     </div>

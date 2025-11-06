@@ -24,7 +24,6 @@ type User = {
   role: "admin" | "user";
 };
 
-// Pindahkan InputField keluar dari komponen utama
 const InputField = ({
   icon: Icon,
   label,
@@ -153,26 +152,43 @@ const UsersPage: React.FC = () => {
     setShowForm(false);
   };
 
-  // Gunakan useCallback untuk event handlers agar tidak re-create setiap render
-  const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, username: e.target.value }));
-  }, []);
+  const handleUsernameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((prev) => ({ ...prev, username: e.target.value }));
+    },
+    []
+  );
 
-  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, email: e.target.value }));
-  }, []);
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((prev) => ({ ...prev, email: e.target.value }));
+    },
+    []
+  );
 
-  const handleTeleponChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, telepon: e.target.value }));
-  }, []);
+  const handleTeleponChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((prev) => ({ ...prev, telepon: e.target.value }));
+    },
+    []
+  );
 
-  const handleAlamatChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, alamat: e.target.value }));
-  }, []);
+  const handleAlamatChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((prev) => ({ ...prev, alamat: e.target.value }));
+    },
+    []
+  );
 
-  const handleRoleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, role: e.target.value as "admin" | "user" }));
-  }, []);
+  const handleRoleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((prev) => ({
+        ...prev,
+        role: e.target.value as "admin" | "user",
+      }));
+    },
+    []
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -293,7 +309,6 @@ const UsersPage: React.FC = () => {
           </div>
         )}
 
-        {/* Users Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
           {users.map((user, index) => (
             <div
@@ -378,7 +393,6 @@ const UsersPage: React.FC = () => {
           ))}
         </div>
 
-        {/* Empty State */}
         {users.length === 0 && (
           <div className="text-center py-12 sm:py-16">
             <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full mb-4">

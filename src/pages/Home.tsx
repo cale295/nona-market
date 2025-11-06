@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import Footer from "../components/common/Footer";
-import { useNavigate } from "react-router-dom"; // Jika menggunakan React Router
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   id_produk: number;
@@ -46,21 +46,18 @@ const ModernHome: React.FC = () => {
       src: "./carousel/1.webp",
       title: "Koleksi Hijab Terbaru",
       subtitle: "Tampil Elegan dengan Hijab Premium Quality",
-      cta: "Shop Now",
       gradient: "from-indigo-600 via-purple-600 to-pink-500",
     },
     {
       src: "./carousel/2.png",
       title: "Sale Up to 50%",
       subtitle: "Dapatkan Hijab Favorit dengan Harga Spesial",
-      cta: "Lihat Promo",
       gradient: "from-pink-500 via-red-500 to-orange-500",
     },
     {
       src: "./carousel/3.png",
       title: "New Arrival",
       subtitle: "Hijab Motif Eksklusif untuk Gaya Istimewa",
-      cta: "Explore",
       gradient: "from-emerald-500 via-teal-500 to-cyan-500",
     },
   ];
@@ -138,7 +135,7 @@ const ModernHome: React.FC = () => {
   };
   const getMainImageUrl = (images: string[]): string => {
     if (images.length > 0) return images[0];
-    return "/placeholder.jpg"; // ganti dengan placeholder-mu
+    return "./placeholder.png"; // ganti dengan placeholder-mu
   };
 
   const addToCart = async (productId: number, e: React.MouseEvent) => {
@@ -286,10 +283,6 @@ const ModernHome: React.FC = () => {
                   <p className="text-xl md:text-2xl mb-8 opacity-90 max-w-2xl mx-auto">
                     {image.subtitle}
                   </p>
-                  <button className="bg-white text-gray-800 px-8 py-4 rounded-2xl font-bold hover:bg-gray-100 hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-3 mx-auto text-lg group">
-                    <span>{image.cta}</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -440,7 +433,7 @@ const ModernHome: React.FC = () => {
                         alt={product.nama_produk}
                         className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover group-hover:scale-110 transition-transform duration-700"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                          (e.target as HTMLImageElement).src = "./placeholder.png";
                         }}
                       />
 
@@ -457,7 +450,7 @@ const ModernHome: React.FC = () => {
 
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-bold text-lg text-gray-800 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                        <h3 className="font-bold text-lg text-gray-800 line-clamp-1 group-hover:text-indigo-600 transition-colors max-w-[90%]">
                           {product.nama_produk}
                         </h3>
                         <Heart 
@@ -469,7 +462,7 @@ const ModernHome: React.FC = () => {
                         />
                       </div>
 
-                      <p className="text-gray-600 mb-4 line-clamp-2 text-sm leading-relaxed">
+                      <p className="text-gray-600 mb-10 line-clamp-2 text-sm leading-relaxed">
                         {product.deskripsi || "Deskripsi tidak tersedia"}
                       </p>
 
@@ -482,18 +475,6 @@ const ModernHome: React.FC = () => {
                             Stok: {product.stok}
                           </span>
                         )}
-                      </div>
-
-                      <div className="flex items-center mb-4 space-x-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="w-4 h-4 text-yellow-400 fill-current"
-                          />
-                        ))}
-                        <span className="text-sm text-gray-500 ml-2">
-                          (4.9)
-                        </span>
                       </div>
 
                       <button

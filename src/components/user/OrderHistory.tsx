@@ -127,7 +127,7 @@ const OrderHistory: React.FC = () => {
   };
   const getMainImageUrl = (images: string[]): string => {
     if (images.length > 0) return images[0];
-    return "/placeholder.jpg"; // ganti dengan placeholder-mu
+    return "./placeholder.png"; 
   }
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -167,49 +167,38 @@ const OrderHistory: React.FC = () => {
 
       if (error) throw error;
       if (!data) {
-        setOrders([]); // Set data kosong jika tidak ada
+        setOrders([]);
         setLoading(false);
         return;
       }
 
-      // Kita transform data di sini agar sesuai dengan interface
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const safeData: Order[] = data.map((order: any) => { // 'order' di sini adalah tipe Order dari DB
-        
-        // 1. Map setiap order_detail di dalam order ini
+      const safeData: Order[] = data.map((order: any) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const safeOrderDetails: OrderDetail[] = (order.order_detail || []).map((detail: any) => { // 'detail' adalah OrderDetail dari DB
+        const safeOrderDetails: OrderDetail[] = (order.order_detail || []).map((detail: any) => {
           
-          // 2. Ambil gambar produk dari 'detail.products'
           const rawImages = detail.products.gambar_produk;
           let safeImages: string[] = [];
-
-          // 3. Ini adalah logika Anda, sekarang ditempatkan di tempat yang benar
           if (Array.isArray(rawImages)) {
             safeImages = rawImages;
           } else if (typeof rawImages === 'string') {
-            safeImages = [rawImages]; // Ubah string jadi array
+            safeImages = [rawImages]; 
           }
-          // Jika null atau undefined, safeImages akan jadi [] (aman)
-
-          // 4. Kembalikan 'detail' dengan 'products' yang sudah aman
           return {
             ...detail,
             products: {
               ...detail.products,
-              gambar_produk: safeImages, // Ganti dengan data yang sudah bersih
+              gambar_produk: safeImages,
             },
           };
         });
-
-        // 5. Kembalikan 'order' dengan 'order_detail' yang sudah aman
         return {
           ...order,
-          order_detail: safeOrderDetails, // Ganti dengan data yang sudah bersih
+          order_detail: safeOrderDetails,
         };
       });
 
-      setOrders(safeData); // Sekarang 'safeData' 100% cocok dengan tipe Order[]
+      setOrders(safeData);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -240,7 +229,7 @@ const OrderHistory: React.FC = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center relative overflow-hidden">
-        {/* Animated Background Elements */}
+        
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-20 h-20 bg-indigo-500 rounded-full animate-pulse"></div>
           <div className="absolute top-40 right-32 w-16 h-16 bg-purple-500 rounded-full animate-bounce"></div>
@@ -285,7 +274,7 @@ const OrderHistory: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
+      
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-20 h-20 bg-indigo-500 rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-20 w-16 h-16 bg-purple-500 rounded-full animate-bounce"></div>
@@ -294,7 +283,7 @@ const OrderHistory: React.FC = () => {
       </div>
 
       <div className="container mx-auto px-4 max-w-6xl py-8 relative z-10">
-        {/* Header */}
+        
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link
@@ -359,7 +348,6 @@ const OrderHistory: React.FC = () => {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="p-6">
-                    {/* Order Header */}
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 space-y-4 md:space-y-0">
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -386,7 +374,6 @@ const OrderHistory: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Order Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                       <div
                         className={`bg-gradient-to-r ${statusDisplay.bgGradient} p-4 rounded-2xl shadow-inner`}
@@ -433,7 +420,6 @@ const OrderHistory: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* View Details Button */}
                     <button
                       onClick={() => toggleOrderDetails(order.id_order)}
                       className="w-full bg-gradient-to-r from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 text-gray-700 py-3 px-6 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center space-x-2 hover:shadow-md"
@@ -447,7 +433,6 @@ const OrderHistory: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Order Details */}
                   {isExpanded && (
                     <div className="border-t border-white/30 bg-gradient-to-r from-white/50 to-white/30 backdrop-blur-sm">
                       <div className="p-6">
@@ -476,7 +461,7 @@ const OrderHistory: React.FC = () => {
                                   className="w-20 h-20 rounded-lg object-cover"
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).src =
-                                      "/placeholder.jpg";
+                                      "./placeholder.png";
                                   }}
                                 />
                               </div>
@@ -511,7 +496,6 @@ const OrderHistory: React.FC = () => {
                           ))}
                         </div>
 
-                        {/* Payment Proof */}
                         {order.bukti_transfer && (
                           <div className="mt-8 pt-6 border-t border-white/30">
                             <div className="flex items-center space-x-3 mb-4">
@@ -532,7 +516,6 @@ const OrderHistory: React.FC = () => {
                           </div>
                         )}
 
-                        {/* Trust Indicators */}
                         <div className="flex items-center justify-center space-x-6 mt-6 pt-6 border-t border-white/30 text-sm text-gray-600">
                           <div className="flex items-center space-x-2">
                             <Heart className="w-4 h-4 text-pink-500" />

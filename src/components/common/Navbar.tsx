@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingBasket,
+  Heart,
   User,
   Menu,
   PackageSearch,
@@ -17,7 +18,7 @@ interface Product {
   nama_produk: string;
   deskripsi?: string;
   harga: number;
-  gambar_produk: string;
+  gambar_produk: string[];
   stok?: number;
 }
 
@@ -42,7 +43,6 @@ const Navbar: React.FC = () => {
     return price.toLocaleString("id-ID");
   };
 
-  // Search functionality
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -121,7 +121,6 @@ const Navbar: React.FC = () => {
     };
   }, []);
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       handleSearch(searchQuery);
@@ -130,7 +129,6 @@ const Navbar: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -149,7 +147,6 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-white/95 backdrop-blur-md border-b border-gray-200/50 sticky w-full z-50 top-0 shadow-lg">
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        {/* Logo */}
         <div className="flex items-center space-x-3">
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="relative">
@@ -170,7 +167,6 @@ const Navbar: React.FC = () => {
           </Link>
         </div>
 
-        {/* Search Bar */}
         <div className="hidden md:block flex-1 max-w-xl mx-8 search-container relative">
           <form onSubmit={handleSearchSubmit} className="relative">
             <input
@@ -200,7 +196,6 @@ const Navbar: React.FC = () => {
             )}
           </form>
 
-          {/* Search Results Dropdown */}
           {showSearchResults && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 max-h-96 overflow-y-auto z-50">
               {searchResults.length > 0 ? (
@@ -217,9 +212,9 @@ const Navbar: React.FC = () => {
                       className="flex items-center p-4 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 cursor-pointer transition-all duration-200 border-b border-gray-50 last:border-b-0"
                     >
                       <img
-                        src={product.gambar_produk}
+                        src={product.gambar_produk[0]}
                         alt={product.nama_produk}
-                        className="w-12 h-12 object-cover rounded-xl mr-4 shadow-sm"
+                        className="w-12 h-12 object-cover rounded-lg mr-4 shadow-sm"
                       />
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-800 text-sm">
@@ -231,18 +226,6 @@ const Navbar: React.FC = () => {
                       </div>
                     </div>
                   ))}
-                  <div className="p-4 border-t border-gray-100">
-                    <button
-                      onClick={() =>
-                        handleSearchSubmit({
-                          preventDefault: () => {},
-                        } as React.FormEvent)
-                      }
-                      className="w-full text-center text-indigo-600 hover:text-indigo-700 font-semibold text-sm py-2 hover:bg-indigo-50 rounded-xl transition-all"
-                    >
-                      Lihat semua hasil pencarian →
-                    </button>
-                  </div>
                 </>
               ) : (
                 <div className="p-8 text-center">
@@ -258,10 +241,12 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
           {isLoggedIn ? (
             <>
+              <Link to="wishlist" className="relative p-3 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-600 transition-all duration-300 group hover:shadow-lg">
+                <Heart className="w-5 h-5" />
+              </Link>
               <Link
                 to="/cart"
                 className="relative p-3 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-600 transition-all duration-300 group hover:shadow-lg"
@@ -288,24 +273,24 @@ const Navbar: React.FC = () => {
                   <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="font-semibold text-gray-800 text-sm">
-                      {user?.email?.split("@")[0] || "User"}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {role === "admin" ? "Administrator" : "Premium Member"}
-                    </p>
+                        {user?.email?.split("@")[0] || "User"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {role === "admin" ? "Administrator" : "Premium Member"}
+                      </p>
                     </div>
                     {role === "admin" && (
-                  <Link
-                    to="/admin"
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-3 p-3 rounded-2xl bg-gradient-to-r from-yellow-100 to-yellow-50 hover:from-yellow-200 hover:to-yellow-100 transition-all duration-300 border border-yellow-300"
-                  >
-                    <Settings className="w-5 h-5 text-yellow-600" />
-                    <span className="text-yellow-700 font-semibold">
-                      Dashboard Admin
-                    </span>
-                  </Link>
-                )}
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center space-x-3 p-3 rounded-2xl bg-gradient-to-r from-yellow-100 to-yellow-50 hover:from-yellow-200 hover:to-yellow-100 transition-all duration-300 border border-yellow-300"
+                      >
+                        <Settings className="w-5 h-5 text-yellow-600" />
+                        <span className="text-yellow-700 font-semibold">
+                          Dashboard Admin
+                        </span>
+                      </Link>
+                    )}
                     <Link
                       to="/settings"
                       onClick={() => setShowUserMenu(false)}
@@ -343,7 +328,6 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <div className="md:hidden">
           <button
             onClick={handleMenuToggle}
@@ -355,11 +339,9 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/50 shadow-lg">
           <div className="px-6 py-4 space-y-4">
-            {/* 🔍 Search Bar di dalam Hamburger */}
             <div className="search-container pb-2">
               <form onSubmit={handleSearchSubmit} className="relative">
                 <input
@@ -384,7 +366,6 @@ const Navbar: React.FC = () => {
                 )}
               </form>
 
-              {/* Hasil pencarian */}
               {showSearchResults && (
                 <div className="mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 max-h-80 overflow-y-auto">
                   {searchResults.length > 0 ? (
@@ -395,9 +376,9 @@ const Navbar: React.FC = () => {
                         className="flex items-center p-3 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 cursor-pointer transition-all duration-200 border-b border-gray-50 last:border-b-0"
                       >
                         <img
-                          src={product.gambar_produk}
+                          src={product.gambar_produk[0]}
                           alt={product.nama_produk}
-                          className="w-10 h-10 object-cover rounded-lg mr-3 shadow-sm"
+                          className="w-12 h-12 object-cover rounded-lg mr-4 shadow-sm"
                         />
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-800 text-sm">
@@ -448,7 +429,10 @@ const Navbar: React.FC = () => {
                     </span>
                   </Link>
                 )}
-
+                <Link to="/wishlist" className="flex items-center space-x-3 p-3 rounded-2xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-300">
+                  <Heart className="w-5 h-5 text-indigo-600" />
+                  <span className="text-gray-700 font-medium">Wishlist</span>
+                </Link>
                 <Link
                   to="/cart"
                   onClick={() => setIsOpen(false)}

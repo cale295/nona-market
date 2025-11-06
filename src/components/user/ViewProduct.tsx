@@ -28,13 +28,13 @@ interface ViewProductProps {
   onBack?: () => void;
 }
 
-export const ViewProduct: React.FC<ViewProductProps> = ({ 
-  productId: propProductId, 
-  onBack 
+export const ViewProduct: React.FC<ViewProductProps> = ({
+  productId: propProductId,
+  onBack,
 }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,9 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
 
   useEffect(() => {
     const getCurrentUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setUser(session?.user || null);
     };
     getCurrentUser();
@@ -84,8 +86,6 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
           ...data,
           gambar_produk: safeImages,
         });
-
-        // Reset selected image
         setSelectedImage(0);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -107,7 +107,9 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
 
   const addToCart = async () => {
     if (!user) {
-      alert("Silakan login terlebih dahulu untuk menambahkan produk ke keranjang");
+      alert(
+        "Silakan login terlebih dahulu untuk menambahkan produk ke keranjang"
+      );
       return;
     }
 
@@ -170,7 +172,6 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
     setAddingToCart(true);
 
     try {
-      // Check if item already exists in cart
       const { data: existingItem, error: checkError } = await supabase
         .from("carts")
         .select("*")
@@ -185,7 +186,6 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
       let cartId;
 
       if (existingItem) {
-        // Update existing cart item
         const { error: updateError } = await supabase
           .from("carts")
           .update({
@@ -197,7 +197,6 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
         if (updateError) throw updateError;
         cartId = existingItem.id_keranjang;
       } else {
-        // Insert new cart item
         const { data: newItem, error: insertError } = await supabase
           .from("carts")
           .insert({
@@ -213,12 +212,10 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
         if (insertError) throw insertError;
         cartId = newItem.id_keranjang;
       }
-
-      // Redirect to checkout with the cart item ID
-      navigate('/checkout', {
+      navigate("/checkout", {
         state: {
-          selectedCartIds: [cartId]
-        }
+          selectedCartIds: [cartId],
+        },
       });
     } catch (error) {
       console.error("Error processing buy now:", error);
@@ -232,7 +229,7 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
     if (onBack) {
       onBack();
     } else {
-      navigate('/');
+      navigate("/");
     }
   };
 
@@ -264,14 +261,14 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
     );
   }
 
-  const productImages = product.gambar_produk.length > 0 
-    ? product.gambar_produk 
-    : ["/placeholder.jpg"]; 
+  const productImages =
+    product.gambar_produk.length > 0
+      ? product.gambar_produk
+      : ["./placeholder.png"];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50">
       <div className="max-w-7xl mx-auto p-6 py-12">
-        {/* Back Button */}
         <button
           onClick={handleBack}
           className="flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 mb-8 font-semibold group"
@@ -280,17 +277,15 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
           <span>Kembali ke Beranda</span>
         </button>
 
-        {/* Container utama */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white rounded-3xl shadow-xl p-8 lg:p-12">
-          {/* Gambar Produk */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <div className="relative overflow-hidden rounded-2xl bg-gray-100 aspect-square shadow-lg">
               <img
                 src={productImages[selectedImage]}
                 alt={product.nama_produk}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                  (e.target as HTMLImageElement).src = "./placeholder.png";
                 }}
               />
               <button className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-full hover:bg-white transition-colors shadow-lg">
@@ -298,9 +293,8 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
               </button>
             </div>
 
-            {/* ✅ Thumbnail menyesuaikan jumlah gambar */}
             {productImages.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="flex gap-3 overflow-x-auto p-2">
                 {productImages.map((img, index) => (
                   <button
                     key={index}
@@ -316,7 +310,7 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                        (e.target as HTMLImageElement).src = "./placeholder.png";
                       }}
                     />
                   </button>
@@ -325,7 +319,6 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
             )}
           </div>
 
-          {/* Detail Produk */}
           <div className="flex flex-col">
             <div className="mb-6">
               <span className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg inline-block mb-4">
@@ -337,21 +330,27 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
               <div className="flex items-center mb-6">
                 <div className="flex items-center space-x-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    <Star
+                      key={i}
+                      className="w-5 h-5 text-yellow-400 fill-current"
+                    />
                   ))}
                 </div>
-                <span className="text-gray-600 ml-3 font-medium">(4.9 dari 250 ulasan)</span>
+                <span className="text-gray-600 ml-3 font-medium">
+                  (4.9 dari 250 ulasan)
+                </span>
               </div>
             </div>
 
-            {/* Info Cards */}
             <div className="space-y-4 mb-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6">
               <div className="flex items-start space-x-4">
                 <div className="bg-white p-2.5 rounded-xl shadow-sm">
                   <Truck className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 mb-1">Pengiriman Cepat</h3>
+                  <h3 className="font-semibold text-gray-800 mb-1">
+                    Pengiriman Cepat
+                  </h3>
                   <p className="text-sm text-gray-600">
                     Garansi tiba: 19 – 20 Oktober
                   </p>
@@ -366,7 +365,9 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
                   <Shield className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 mb-1">Jaminan Nona</h3>
+                  <h3 className="font-semibold text-gray-800 mb-1">
+                    Jaminan Nona
+                  </h3>
                   <p className="text-sm text-gray-600">
                     Bebas Pengembalian • Proteksi Kerusakan
                   </p>
@@ -379,14 +380,18 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
                     <Package className="w-6 h-6 text-purple-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800 mb-1">Ketersediaan Stok</h3>
+                    <h3 className="font-semibold text-gray-800 mb-1">
+                      Ketersediaan Stok
+                    </h3>
                     <p className="text-sm text-gray-600">
                       {product.stok > 0 ? (
                         <span className="text-green-600 font-semibold">
                           {product.stok} unit tersedia
                         </span>
                       ) : (
-                        <span className="text-red-600 font-semibold">Stok habis</span>
+                        <span className="text-red-600 font-semibold">
+                          Stok habis
+                        </span>
                       )}
                     </p>
                   </div>
@@ -396,7 +401,6 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
 
             <div className="border-t border-gray-200 my-6" />
 
-            {/* Harga & Quantity */}
             <div className="mb-6">
               <h2 className="text-xl font-bold mb-4 text-gray-800">Harga</h2>
               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 mb-6 shadow-lg">
@@ -423,13 +427,17 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
                     min={1}
                     max={product.stok}
                     value={quantity}
-                    onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                    onChange={(e) =>
+                      handleQuantityChange(parseInt(e.target.value) || 1)
+                    }
                     className="border-2 border-gray-200 rounded-xl w-24 h-12 text-center font-semibold text-lg focus:border-indigo-600 focus:outline-none"
                   />
                   <button
                     onClick={() => handleQuantityChange(quantity + 1)}
                     className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold w-12 h-12 rounded-xl transition-colors"
-                    disabled={product.stok !== undefined && quantity >= product.stok}
+                    disabled={
+                      product.stok !== undefined && quantity >= product.stok
+                    }
                   >
                     +
                   </button>
@@ -444,7 +452,10 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={buyNow}
-                  disabled={(product.stok !== undefined && product.stok <= 0) || addingToCart}
+                  disabled={
+                    (product.stok !== undefined && product.stok <= 0) ||
+                    addingToCart
+                  }
                   className="flex-1 border-2 border-indigo-600 bg-white text-indigo-600 py-4 rounded-2xl font-bold hover:bg-indigo-50 transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center space-x-2"
                 >
                   {addingToCart ? (
@@ -491,14 +502,14 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
         </div>
 
         <div className="border-t border-gray-200 my-8" />
-
-        {/* Deskripsi */}
         <div className="bg-white rounded-3xl shadow-xl p-8 lg:p-12">
           <div className="flex items-center space-x-3 mb-6">
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-3 rounded-xl">
               <Clock className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800">Deskripsi Produk</h2>
+            <h2 className="text-2xl font-bold text-gray-800">
+              Deskripsi Produk
+            </h2>
           </div>
           <div className="prose max-w-none">
             <p className="text-gray-700 text-base leading-relaxed whitespace-pre-line">
