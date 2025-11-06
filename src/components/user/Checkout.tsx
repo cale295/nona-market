@@ -14,7 +14,6 @@ import {
   Clock,
   AlertCircle,
   X,
-  Image as ImageIcon,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 
@@ -176,7 +175,7 @@ setCartItems(safeData);
       const fileExt = file.name.split(".").pop();
       const fileName = `${user?.id}_${Date.now()}.${fileExt}`;
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("bukti")
         .upload(fileName, file);
 
