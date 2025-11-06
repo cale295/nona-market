@@ -11,14 +11,10 @@ import {
   Activity,
 } from "lucide-react";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   Area,
   AreaChart,
 } from "recharts";
@@ -44,7 +40,6 @@ const AdminDashboard: React.FC = () => {
         const now = new Date();
         const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
         const [
           { count: userTotal },
