@@ -280,10 +280,6 @@ const OrderManager: React.FC = () => {
       if (error) {
         console.error("Error updating order status:", error);
         alert("Gagal mengupdate status order: " + error.message);
-        
-        // Jika update status gagal tapi stok sudah dikurangi, 
-        // sebaiknya rollback stok (implementasi rollback bisa ditambahkan di sini)
-        
       } else {
         console.log("Order status updated successfully:", data);
         

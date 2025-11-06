@@ -86,22 +86,41 @@ const Cart: React.FC = () => {
 
       if (error) throw error;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const safeData = (data || []).map((item: any) => {
-        let safeImages: string[] = [];
-        if (Array.isArray(item.products.gambar_produk)) {
-          safeImages = item.products.gambar_produk;
-        } else if (typeof item.products.gambar_produk === "string") {
-          safeImages = [item.products.gambar_produk];
-        }
-        return {
-          ...item,
-          products: {
-            ...item.products,
-            gambar_produk: safeImages,
-          },
-        };
-      });
+      type SupabaseCartItem = {
+  id_keranjang: number;
+  id_user: string;
+  id_produk: number;
+  jumlah: number;
+  created_at: string;
+  updated_at: string;
+  products: {
+    id_produk: number;
+    nama_produk: string;
+    deskripsi?: string;
+    harga: number;
+    gambar_produk: string | string[];
+    stok: number;
+  };
+};
 
+const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
+  const product = Array.isArray(item.products)
+    ? item.products[0] // 👈 unwrap single product
+    : item.products;
+
+  const safeImages =
+    Array.isArray(product.gambar_produk)
+      ? product.gambar_produk
+      : [product.gambar_produk];
+
+  return {
+    ...item,
+    products: {
+      ...product,
+      gambar_produk: safeImages,
+    },
+  };
+});
       setCartItems(safeData);
     } catch (error) {
       console.error("Error fetching cart items:", error);

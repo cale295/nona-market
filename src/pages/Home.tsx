@@ -96,19 +96,18 @@ const ModernHome: React.FC = () => {
         console.error("Error fetching products:", error.message);
       } else {
         // ✅ Pastikan gambar_produk selalu array
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const safeProducts = (data || []).map((p: any) => {
-          let images: string[] = [];
-          if (Array.isArray(p.gambar_produk)) {
-            images = p.gambar_produk;
-          } else if (typeof p.gambar_produk === "string") {
-            images = [p.gambar_produk];
-          }
-          return { ...p, gambar_produk: images };
-        });
+        const safeData: Product[] = data.map((p) => {
+        let images: string[] = [];
+        if (Array.isArray(p.gambar_produk)) {
+          images = p.gambar_produk;
+        } else if (typeof p.gambar_produk === "string") {
+          images = [p.gambar_produk];
+        }
+        return { ...p, gambar_produk: images };
+      });
 
-        setAllProducts(safeProducts);
-        setFeaturedProducts(safeProducts.slice(0, displayCount));
+        setAllProducts(safeData);
+        setFeaturedProducts(safeData.slice(0, displayCount));
       }
     };
 

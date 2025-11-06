@@ -72,43 +72,59 @@ const Checkout: React.FC = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("carts")
-        .select(
-          `
-          *,
-          products (
-            id_produk,
-            nama_produk,
-            deskripsi,
-            harga,
-            gambar_produk,
-            stok
-          )
-        `
-        )
-        .in("id_keranjang", selectedCartIds)
-        .eq("id_user", user.id)
-        .order("created_at", { ascending: false });
+  .from("carts")
+  .select(`
+    *,
+    products (
+      id_produk,
+      nama_produk,
+      deskripsi,
+      harga,
+      gambar_produk,
+      stok
+    )
+  `)
+  .in("id_keranjang", selectedCartIds)
+  .eq("id_user", user.id)
+  .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const safeData = (data || []).map((item: any) => {
-        let safeImages: string[] = [];
-        if (Array.isArray(item.products.gambar_produk)) {
-          safeImages = item.products.gambar_produk;
-        } else if (typeof item.products.gambar_produk === "string") {
-          safeImages = [item.products.gambar_produk];
-        }
-        return {
-          ...item,
-          products: {
-            ...item.products,
-            gambar_produk: safeImages,
-          },
-        };
-      });
+if (error) throw error;
 
-      setCartItems(safeData);
+// Define a better type for the Supabase response
+type SupabaseCartItem = {
+  id_keranjang: number;
+  id_user: string;
+  id_produk: number;
+  jumlah: number;
+  created_at: string;
+  updated_at: string;
+  products: {
+    id_produk: number;
+    nama_produk: string;
+    deskripsi?: string;
+    harga: number;
+    gambar_produk: string[] | string;
+    stok: number;
+  };
+};
+
+const safeData: CartItem[] = (data as SupabaseCartItem[]).map((item) => {
+  const safeImages =
+    Array.isArray(item.products.gambar_produk)
+      ? item.products.gambar_produk
+      : [item.products.gambar_produk];
+
+  return {
+    ...item,
+    products: {
+      ...item.products,
+      gambar_produk: safeImages,
+    },
+  };
+});
+
+setCartItems(safeData);
+
     } catch (error) {
       console.error("Error fetching cart items:", error);
     } finally {

@@ -166,23 +166,50 @@ const OrderHistory: React.FC = () => {
         .order("tanggal_order", { ascending: false });
 
       if (error) throw error;
+      if (!data) {
+        setOrders([]); // Set data kosong jika tidak ada
+        setLoading(false);
+        return;
+      }
+
+      // Kita transform data di sini agar sesuai dengan interface
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const safeData = (data || []).map((item: any) => {
-        let safeImages: string[] = [];
-        if (Array.isArray(item.products.gambar_produk)) {
-          safeImages = item.products.gambar_produk;
-        } else if (typeof item.products.gambar_produk === "string") {
-          safeImages = [item.products.gambar_produk];
-        }
+      const safeData: Order[] = data.map((order: any) => { // 'order' di sini adalah tipe Order dari DB
+        
+        // 1. Map setiap order_detail di dalam order ini
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const safeOrderDetails: OrderDetail[] = (order.order_detail || []).map((detail: any) => { // 'detail' adalah OrderDetail dari DB
+          
+          // 2. Ambil gambar produk dari 'detail.products'
+          const rawImages = detail.products.gambar_produk;
+          let safeImages: string[] = [];
+
+          // 3. Ini adalah logika Anda, sekarang ditempatkan di tempat yang benar
+          if (Array.isArray(rawImages)) {
+            safeImages = rawImages;
+          } else if (typeof rawImages === 'string') {
+            safeImages = [rawImages]; // Ubah string jadi array
+          }
+          // Jika null atau undefined, safeImages akan jadi [] (aman)
+
+          // 4. Kembalikan 'detail' dengan 'products' yang sudah aman
+          return {
+            ...detail,
+            products: {
+              ...detail.products,
+              gambar_produk: safeImages, // Ganti dengan data yang sudah bersih
+            },
+          };
+        });
+
+        // 5. Kembalikan 'order' dengan 'order_detail' yang sudah aman
         return {
-          ...item,
-          products: {
-            ...item.products,
-            gambar_produk: safeImages,
-          },
+          ...order,
+          order_detail: safeOrderDetails, // Ganti dengan data yang sudah bersih
         };
       });
-      setOrders(safeData);
+
+      setOrders(safeData); // Sekarang 'safeData' 100% cocok dengan tipe Order[]
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
