@@ -24,7 +24,7 @@ interface Product {
 }
 
 interface ViewProductProps {
-  productId?: number;
+  productId?: string;
   onBack?: () => void;
 }
 
@@ -42,6 +42,8 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [togglingWishlist, setTogglingWishlist] = useState(false);
 
   const formatPrice = (price: number): string => {
     return price.toLocaleString("id-ID");
@@ -96,6 +98,39 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
 
     fetchProduct();
   }, [productId]);
+
+  useEffect(() => {
+    const checkWishlist = async () => {
+      if (!user || !product) {
+        setIsWishlisted(false);
+        return;
+      }
+
+      setTogglingWishlist(true);
+      try {
+        const { data, error } = await supabase
+          .from("wishlist")
+          .select("id_wishlist")
+          .eq("id_user", user.id)
+          .eq("id_produk", product.id_produk)
+          .single();
+
+        if (data && !error) {
+          setIsWishlisted(true);
+        } else {
+          setIsWishlisted(false);
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        setIsWishlisted(false);
+      } finally {
+        setTogglingWishlist(false); // Selesai loading
+      }
+    };
+
+    checkWishlist();
+  }, [user, product]);
+  // ------------------------------------------
 
   const handleQuantityChange = (value: number) => {
     if (product?.stok !== undefined) {
@@ -210,7 +245,9 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
           .single();
 
         if (insertError) throw insertError;
-        cartId = newItem.id_keranjang;
+        if (newItem) {
+          cartId = newItem.id_keranjang;
+        }
       }
       navigate("/checkout", {
         state: {
@@ -224,6 +261,44 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
       setAddingToCart(false);
     }
   };
+
+  const toggleWishlist = async () => {
+    if (!user) {
+      alert("Silakan login terlebih dahulu untuk menyimpan wishlist");
+      return;
+    }
+    if (!product) return;
+
+    setTogglingWishlist(true);
+
+    try {
+      if (isWishlisted) {
+        const { error } = await supabase
+          .from("wishlist")
+          .delete()
+          .eq("id_user", user.id)
+          .eq("id_produk", product.id_produk);
+
+        if (error) throw error;
+        setIsWishlisted(false);
+      } else {
+        const { error } = await supabase.from("wishlist").insert({
+          id_user: user.id,
+          id_produk: product.id_produk,
+          created_at: new Date().toISOString(),
+        });
+
+        if (error) throw error;
+        setIsWishlisted(true);
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      alert("Gagal memperbarui wishlist. Silakan coba lagi.");
+    } finally {
+      setTogglingWishlist(false);
+    }
+  };
+  // ------------------------------------
 
   const handleBack = () => {
     if (onBack) {
@@ -288,8 +363,21 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
                   (e.target as HTMLImageElement).src = "./placeholder.png";
                 }}
               />
-              <button className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-full hover:bg-white transition-colors shadow-lg">
-                <Heart className="w-6 h-6 text-gray-600 hover:text-red-500 transition-colors" />
+
+              <button
+                onClick={toggleWishlist}
+                disabled={togglingWishlist}
+                className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-full hover:bg-white transition-colors shadow-lg disabled:opacity-50"
+              >
+                <Heart
+                  className={`w-6 h-6 transition-all ${
+                    togglingWishlist
+                      ? "text-gray-400 animate-spin"
+                      : isWishlisted
+                      ? "text-red-500 fill-red-500"
+                      : "text-gray-600 hover:text-red-500"
+                  }`}
+                />
               </button>
             </div>
 
@@ -310,7 +398,8 @@ export const ViewProduct: React.FC<ViewProductProps> = ({
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "./placeholder.png";
+                        (e.target as HTMLImageElement).src =
+                          "./placeholder.png";
                       }}
                     />
                   </button>

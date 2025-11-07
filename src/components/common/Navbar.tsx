@@ -88,6 +88,7 @@ const Navbar: React.FC = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setShowUserMenu(false);
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -244,7 +245,7 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center space-x-6">
           {isLoggedIn ? (
             <>
-              <Link to="wishlist" className="relative p-3 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-600 transition-all duration-300 group hover:shadow-lg">
+              <Link to="/wishlist" className="relative p-3 rounded-2xl bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-600 transition-all duration-300 group hover:shadow-lg">
                 <Heart className="w-5 h-5" />
               </Link>
               <Link

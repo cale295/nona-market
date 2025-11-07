@@ -163,12 +163,10 @@ const AdminDashboard: React.FC = () => {
         className={`relative overflow-hidden bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 group`}
         style={{ animationDelay: `${delay}ms` }}
       >
-        {/* Gradient Background */}
         <div
           className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}
         ></div>
 
-        {/* Animated Background Elements */}
         <div className="absolute -top-10 -right-10 w-20 h-20 bg-gradient-to-br from-white to-gray-100 rounded-full opacity-10 group-hover:scale-110 transition-transform duration-500"></div>
         <div className="absolute -bottom-5 -left-5 w-15 h-15 bg-gradient-to-br from-white to-gray-100 rounded-full opacity-5 group-hover:scale-110 transition-transform duration-500"></div>
 
@@ -215,7 +213,6 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
       <div className="relative overflow-hidden bg-white border-b border-gray-100">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-5"></div>
         <div className="relative z-10 p-8">
@@ -246,7 +243,6 @@ const AdminDashboard: React.FC = () => {
           <LoadingSkeleton />
         ) : (
           <div className="animate-fade-in">
-            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
               <StatCard
                 icon={User}
@@ -277,9 +273,7 @@ const AdminDashboard: React.FC = () => {
               />
             </div>
 
-            {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main Chart */}
               <div className="lg:col-span-2 bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-xl">
@@ -366,7 +360,6 @@ const AdminDashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Summary Stats */}
               <div className="space-y-6">
                 <div className="bg-white rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="flex items-center gap-3 mb-4">

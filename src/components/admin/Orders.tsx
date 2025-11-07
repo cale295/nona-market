@@ -384,7 +384,7 @@ const OrderManager: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-8">
+      <div className="p-4">
         <div className="mb-8 bg-white rounded-3xl shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
             <div className="flex items-center gap-2">
@@ -393,7 +393,7 @@ const OrderManager: React.FC = () => {
             </div>
           </div>
           <div className="p-8">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex gap-3 overflow-x-auto max-w-screen">
               {filterOptions.map((status) => {
                 const IconComponent = status.icon;
                 const isActive = filter === status.key;

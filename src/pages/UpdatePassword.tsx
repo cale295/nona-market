@@ -11,8 +11,8 @@ const UpdatePassword: React.FC = () => {
 
   useEffect(() => {
     const getSessionFromUrl = async () => {
-  const hash = window.location.hash; // ambil bagian setelah `#`
-  const params = new URLSearchParams(hash.slice(1)); // hapus `#` di awal
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.slice(1));
 
   const access_token = params.get("access_token");
   const refresh_token = params.get("refresh_token");

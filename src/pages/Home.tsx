@@ -19,7 +19,7 @@ import Footer from "../components/common/Footer";
 import { useNavigate } from "react-router-dom";
 
 interface Product {
-  id_produk: number;
+  id_produk: string;
   nama_produk: string;
   deskripsi?: string;
   harga: number;
@@ -34,8 +34,12 @@ const ModernHome: React.FC = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [displayCount, setDisplayCount] = useState(8);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
-  const [addingToCart, setAddingToCart] = useState<Set<number>>(new Set());
-  const [addedToCart, setAddedToCart] = useState<Set<number>>(new Set());
+  const [addingToCart, setAddingToCart] = useState<Set<string>>(new Set());
+  const [addedToCart, setAddedToCart] = useState<Set<string>>(new Set());
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+  const [togglingWishlist, setTogglingWishlist] = useState<Set<string>>(
+    new Set()
+  );
 
   const formatPrice = (price: number): string => {
     return price.toLocaleString("id-ID");
@@ -62,19 +66,42 @@ const ModernHome: React.FC = () => {
     },
   ];
 
-  // Get current user and set up auth listener
   useEffect(() => {
-    const getCurrentUser = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fetchUserAndWishlist = async (sessionUser: any) => {
+      if (sessionUser) {
+        setUser(sessionUser);
+        const { data, error } = await supabase
+          .from("wishlist")
+          .select("id_produk")
+          .eq("id_user", sessionUser.id);
+
+        if (data) {
+          const wishlistProductIds = new Set(
+            data.map((item) => item.id_produk)
+          );
+          setWishlist(wishlistProductIds);
+        } else {
+          console.error("Error fetching wishlist:", error?.message);
+        }
+      } else {
+        setUser(null);
+        setWishlist(new Set());
+      }
+    };
+
+    const getCurrentData = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      setUser(session?.user || null);
+      await fetchUserAndWishlist(session?.user || null);
     };
-    getCurrentUser();
+
+    getCurrentData();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user || null);
+      async (_event, session) => {
+        await fetchUserAndWishlist(session?.user || null);
       }
     );
 
@@ -83,25 +110,22 @@ const ModernHome: React.FC = () => {
     };
   }, []);
 
-  // Fetch products from Supabase
   useEffect(() => {
     const fetchProducts = async () => {
-      // ✅ Ambil data dengan aman: pastikan gambar_produk array
       const { data, error } = await supabase.from("products").select("*");
 
       if (error) {
         console.error("Error fetching products:", error.message);
       } else {
-        // ✅ Pastikan gambar_produk selalu array
         const safeData: Product[] = data.map((p) => {
-        let images: string[] = [];
-        if (Array.isArray(p.gambar_produk)) {
-          images = p.gambar_produk;
-        } else if (typeof p.gambar_produk === "string") {
-          images = [p.gambar_produk];
-        }
-        return { ...p, gambar_produk: images };
-      });
+          let images: string[] = [];
+          if (Array.isArray(p.gambar_produk)) {
+            images = p.gambar_produk;
+          } else if (typeof p.gambar_produk === "string") {
+            images = [p.gambar_produk];
+          }
+          return { ...p, gambar_produk: images };
+        });
 
         setAllProducts(safeData);
         setFeaturedProducts(safeData.slice(0, displayCount));
@@ -129,19 +153,18 @@ const ModernHome: React.FC = () => {
 
   const hasMoreProducts = displayCount < allProducts.length;
 
-  // Fungsi untuk navigasi ke halaman detail produk
-  const viewProductDetail = (productId: number) => {
+  const viewProductDetail = (productId: string) => {
     navigate(`/product/${productId}`);
   };
+
   const getMainImageUrl = (images: string[]): string => {
     if (images.length > 0) return images[0];
-    return "./placeholder.png"; // ganti dengan placeholder-mu
+    return "./placeholder.png";
   };
 
-  const addToCart = async (productId: number, e: React.MouseEvent) => {
-    // Prevent navigation when clicking add to cart
+  const addToCart = async (productId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!user) {
       alert(
         "Silakan login terlebih dahulu untuk menambahkan produk ke keranjang"
@@ -205,7 +228,57 @@ const ModernHome: React.FC = () => {
     }
   };
 
-  const getButtonContent = (productId: number) => {
+  const toggleWishlist = async (productId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!user) {
+      alert("Silakan login terlebih dahulu untuk menyimpan wishlist");
+      return;
+    }
+
+    setTogglingWishlist((prev) => new Set(prev).add(productId));
+
+    const isWishlisted = wishlist.has(productId);
+
+    try {
+      if (isWishlisted) {
+        const { error } = await supabase
+          .from("wishlist")
+          .delete()
+          .eq("id_user", user.id)
+          .eq("id_produk", productId);
+
+        if (error) throw error;
+
+        setWishlist((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+      } else {
+        const { error } = await supabase.from("wishlist").insert({
+          id_user: user.id,
+          id_produk: productId,
+          created_at: new Date().toISOString(),
+        });
+
+        if (error) throw error;
+
+        setWishlist((prev) => new Set(prev).add(productId));
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      alert("Gagal memperbarui wishlist. Silakan coba lagi.");
+    } finally {
+      setTogglingWishlist((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
+  };
+
+  const getButtonContent = (productId: string) => {
     if (addingToCart.has(productId)) {
       return (
         <>
@@ -232,7 +305,7 @@ const ModernHome: React.FC = () => {
     );
   };
 
-  const getButtonStyle = (productId: number) => {
+  const getButtonStyle = (productId: string) => {
     if (addedToCart.has(productId)) {
       return "w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-2xl font-bold hover:from-green-600 hover:to-emerald-700 hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg";
     }
@@ -242,9 +315,7 @@ const ModernHome: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50">
-      {/* Hero Carousel */}
       <section className="relative h-[500px] lg:h-[600px] overflow-hidden">
-        {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-10 z-10">
           <div className="absolute top-20 left-20 w-20 h-20 bg-white rounded-full animate-pulse"></div>
           <div className="absolute top-40 right-32 w-16 h-16 bg-white rounded-full animate-bounce"></div>
@@ -289,7 +360,6 @@ const ModernHome: React.FC = () => {
           </div>
         ))}
 
-        {/* Modern Carousel Indicators */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex space-x-3">
           {carouselImages.map((_, index) => (
             <button
@@ -305,7 +375,6 @@ const ModernHome: React.FC = () => {
         </div>
       </section>
 
-      {/* Trust Indicators */}
       <section className="py-16 bg-white relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50 opacity-50"></div>
         <div className="container mx-auto px-6 relative z-10">
@@ -352,7 +421,6 @@ const ModernHome: React.FC = () => {
         </div>
       </section>
 
-      {/* Welcome Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-5"></div>
         <div className="container mx-auto px-6 text-center relative z-10">
@@ -376,7 +444,6 @@ const ModernHome: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
       <section className="py-20 bg-white relative">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -407,89 +474,98 @@ const ModernHome: React.FC = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {featuredProducts.map((product) => (
-                  <div
-                    key={product.id_produk}
-                    onClick={() => viewProductDetail(product.id_produk)}
-                    className="group bg-white rounded-3xl shadow-lg transition-all duration-500 overflow-hidden border border-gray-100 relative cursor-pointer hover:shadow-2xl"
-                  >
-                    {/* Product Badge */}
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                        Premium
-                      </span>
-                    </div>
+                {featuredProducts.map((product) => {
+                  const isWishlisted = wishlist.has(product.id_produk);
+                  const isToggling = togglingWishlist.has(product.id_produk);
 
-                    {/* View Detail Button - Muncul saat hover */}
-                    <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <button className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full hover:bg-white shadow-lg">
-                        <Eye className="w-5 h-5 text-indigo-600" />
-                      </button>
-                    </div>
+                  return (
+                    <div
+                      key={product.id_produk}
+                      onClick={() => viewProductDetail(product.id_produk)}
+                      className="group bg-white rounded-3xl shadow-lg transition-all duration-500 overflow-hidden border border-gray-100 relative cursor-pointer hover:shadow-2xl"
+                    >
+                      <div className="absolute top-4 left-4 z-10">
+                        <span className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                          Premium
+                        </span>
+                      </div>
 
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={getMainImageUrl(product.gambar_produk)}
-                        alt={product.nama_produk}
-                        className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover group-hover:scale-110 transition-transform duration-700"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "./placeholder.png";
-                        }}
-                      />
+                      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full hover:bg-white shadow-lg">
+                          <Eye className="w-5 h-5 text-indigo-600" />
+                        </button>
+                      </div>
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                      {product.stok !== undefined && product.stok <= 0 && (
-                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                          <span className="text-white font-bold text-lg bg-red-500 px-4 py-2 rounded-full">
-                            Stok Habis
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-bold text-lg text-gray-800 line-clamp-1 group-hover:text-indigo-600 transition-colors max-w-[90%]">
-                          {product.nama_produk}
-                        </h3>
-                        <Heart 
-                          className="w-5 h-5 text-gray-400 hover:text-red-500 cursor-pointer transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Add to wishlist logic
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={getMainImageUrl(product.gambar_produk)}
+                          alt={product.nama_produk}
+                          className="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover group-hover:scale-110 transition-transform duration-700"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "./placeholder.png";
                           }}
                         />
-                      </div>
 
-                      <p className="text-gray-600 mb-10 line-clamp-2 text-sm leading-relaxed">
-                        {product.deskripsi || "Deskripsi tidak tersedia"}
-                      </p>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                          Rp {formatPrice(product.harga)}
-                        </span>
-                        {product.stok !== undefined && (
-                          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                            Stok: {product.stok}
-                          </span>
+                        {product.stok !== undefined && product.stok <= 0 && (
+                          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                            <span className="text-white font-bold text-lg bg-red-500 px-4 py-2 rounded-full">
+                              Stok Habis
+                            </span>
+                          </div>
                         )}
                       </div>
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="font-bold text-lg text-gray-800 line-clamp-1 group-hover:text-indigo-600 transition-colors max-w-[90%]">
+                            {product.nama_produk}
+                          </h3>
 
-                      <button
-                        onClick={(e) => addToCart(product.id_produk, e)}
-                        disabled={
-                          addingToCart.has(product.id_produk) ||
-                          (product.stok !== undefined && product.stok <= 0)
-                        }
-                        className={getButtonStyle(product.id_produk)}
-                      >
-                        {getButtonContent(product.id_produk)}
-                      </button>
+                          <Heart
+                            className={`w-5 h-5 cursor-pointer transition-all ${
+                              isToggling
+                                ? "text-gray-400 animate-spin"
+                                : isWishlisted
+                                ? "text-red-500 fill-red-500"
+                                : "text-gray-400 hover:text-red-500"
+                            }`}
+                            onClick={(e) =>
+                              toggleWishlist(product.id_produk, e)
+                            }
+                          />
+                        </div>
+
+                        <p className="text-gray-600 mb-10 line-clamp-2 text-sm leading-relaxed">
+                          {product.deskripsi || "Deskripsi tidak tersedia"}
+                        </p>
+
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                            Rp {formatPrice(product.harga)}
+                          </span>
+                          {product.stok !== undefined && (
+                            <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                              Stok: {product.stok}
+                            </span>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={(e) => addToCart(product.id_produk, e)}
+                          disabled={
+                            addingToCart.has(product.id_produk) ||
+                            (product.stok !== undefined && product.stok <= 0)
+                          }
+                          className={getButtonStyle(product.id_produk)}
+                        >
+                          {getButtonContent(product.id_produk)}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="text-center mt-16">
@@ -515,7 +591,6 @@ const ModernHome: React.FC = () => {
         </div>
       </section>
 
-      {/* Why Choose Us */}
       <section className="py-20 bg-gradient-to-br from-indigo-50 to-purple-50 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full animate-pulse"></div>

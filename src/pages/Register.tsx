@@ -22,14 +22,12 @@ const Register: React.FC = () => {
     setSuccess(null);
 
     try {
-      // Validasi input
       if (password.length < 6) {
         setError("Password minimal 6 karakter");
         setLoading(false);
         return;
       }
 
-      // Sign up user
       const { data, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -42,8 +40,6 @@ const Register: React.FC = () => {
 
       if (authError) {
         setLoading(false);
-        
-        // Handle specific error messages
         if (authError.message.includes("User already registered")) {
           setError("Email sudah terdaftar. Silakan gunakan email lain atau login.");
         } else if (authError.message.includes("Invalid email")) {
@@ -59,7 +55,6 @@ const Register: React.FC = () => {
       const userId = data?.user?.id;
 
       if (userId) {
-        // Insert user data to custom users table
         const { error: dbError } = await supabase.from("users").insert([
           {
             id_user: userId,
@@ -80,8 +75,6 @@ const Register: React.FC = () => {
 
       setLoading(false);
       setSuccess("Registrasi berhasil! Silakan cek email untuk konfirmasi.");
-      
-      // Navigate after a short delay to show success message
       setTimeout(() => {
         navigate("/login");
       }, 2000);

@@ -48,7 +48,7 @@ const Cart: React.FC = () => {
 
   const getMainImageUrl = (images: string[]): string => {
     if (images.length > 0) return images[0];
-    return "./placeholder.png";
+    return "/placeholder.jpg";
   };
 
   useEffect(() => {
@@ -385,7 +385,7 @@ const Cart: React.FC = () => {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
-                    <div className="relative self-start md:self-auto">
+                    <div className="relative self-end md:self-auto">
                       <input
                         type="checkbox"
                         checked={selectedItems.has(item.id_keranjang)}
@@ -403,7 +403,7 @@ const Cart: React.FC = () => {
                         className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl shadow-lg"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
-                            "./placeholder.png";
+                            "/placeholder.jpg";
                         }}
                       />
                     </div>
@@ -437,7 +437,7 @@ const Cart: React.FC = () => {
                       <button
                         onClick={() => removeItem(item.id_keranjang)}
                         disabled={updating.has(item.id_keranjang)}
-                        className="w-10 h-10 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 disabled:opacity-50"
+                        className="hidden md:block w-10 h-10 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 disabled:opacity-50"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>

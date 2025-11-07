@@ -17,6 +17,7 @@ import OrderManager from "../components/admin/Orders";
 import ForgotPassword from "../pages/ForgotPassword";
 import UpdatePassword from "../pages/UpdatePassword";
 import { ViewProduct } from "../components/user/ViewProduct";
+import Wishlist from "../components/user/Wishlist";
 
 const AppRouter: React.FC = () => {
   return (
@@ -29,7 +30,8 @@ const AppRouter: React.FC = () => {
           <Route path="checkout" element={<Checkout />} />
           <Route path="order-success" element={<OrderSuccess />} />
           <Route path="orders" element={<OrderHistory />} />
-        <Route path="product/:id" element={<ViewProduct/>} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="product/:id" element={<ViewProduct/>} />
         </Route>
 
         <Route path="/admin" element={<AdminLayout />}>
